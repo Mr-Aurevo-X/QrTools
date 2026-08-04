@@ -7,6 +7,17 @@ Multi-payload QR generator — 100% local, 100% free.
 
 Public showcase: [github.com/Mr-Aurevo-X/QrMake](https://github.com/Mr-Aurevo-X/QrMake)
 
+## Download / Téléchargement
+
+**[Télécharger QrMake.exe (GitHub Releases)](https://github.com/Mr-Aurevo-X/QrMake/releases/latest)** — dernière version stable.
+
+Ou parcourir toutes les versions : [Releases](https://github.com/Mr-Aurevo-X/QrMake/releases).
+
+Double-cliquer sur QrMake.exe pour lancer (pas d’installation).  
+Double-click QrMake.exe to run (no install).
+
+
+
 Local SoT (public vitrine, **not** in L’Atelier Windows / PC Command):
 
 `C:\Users\aurel\Documents\Dev Central Tree\Git Vitrine Public\QrMake`
