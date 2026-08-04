@@ -364,21 +364,8 @@ class Api:
         return qrmake_updater.check_for_update()
 
     def apply_update(self) -> dict:
-        result = qrmake_updater.apply_update()
-        if result.get("ok") and result.get("restarting"):
-            if self._window is not None:
-                try:
-                    self._window.destroy()
-                except Exception:
-                    pass
-            # Let the finish script replace the locked exe
-            try:
-                import threading
-
-                threading.Timer(0.4, lambda: os._exit(0)).start()
-            except Exception:
-                pass
-        return result
+        # Bat-only: refresh sources (git pull / zip). User relaunches via Lancer.bat.
+        return qrmake_updater.apply_update()
 
     def dismiss_update(self, version: str | None = None) -> dict:
         return qrmake_updater.dismiss_update(version)

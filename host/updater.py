@@ -1,7 +1,8 @@
-"""Optional GitHub Releases updater for QrMake.
+"""Optional GitHub update check for QrMake (sources / bat-only).
 
-Legal: updates are not guaranteed (no SLA). This module only checks / applies
-a published GitHub Release when one exists — the sole optional network call.
+Legal: updates are not guaranteed (no SLA). Compares local VERSION to the
+latest GitHub release tag. Apply prefers `git pull` in a clone; otherwise
+refreshes tracked files from the release source zip. No .exe asset required.
 """
 # © 2026 Mr-Aurevo-X · QrMake · 100% local · free · updates not guaranteed
 from __future__ import annotations
@@ -9,6 +10,7 @@ from __future__ import annotations
 import json
 import os
 import re
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -21,9 +23,11 @@ from typing import Any
 RELEASE_REPO = "Mr-Aurevo-X/QrMake"
 API_LATEST = f"https://api.github.com/repos/{RELEASE_REPO}/releases/latest"
 USER_AGENT = "QrMake-Updater/1.0 (+https://github.com/Mr-Aurevo-X/QrMake)"
-EXE_NAME = "QrMake.exe"
 VERSION_NAME = "VERSION"
 SETTINGS_NAME = "qrmake-settings.json"
+
+# Paths refreshed from a source zip (never wipe .venv / local exe leftovers)
+REFRESH_TOP = ("host", "ui", "VERSION", "requirements.txt", "Lancer.bat", "QrMake.bat", "Lancer.cmd", "README.md", "LICENSE", "brand-icon.ico")
 
 
 def _local_appdata() -> Path:
@@ -56,25 +60,19 @@ def save_settings(patch: dict[str, Any]) -> dict[str, Any]:
 
 
 def app_dir() -> Path:
-    if getattr(sys, "frozen", False):
-        return Path(sys.executable).resolve().parent
     return Path(__file__).resolve().parent.parent
 
 
 def read_local_version(root: Path | None = None) -> str:
     root = root or app_dir()
-    candidates = [root / VERSION_NAME]
-    if getattr(sys, "frozen", False):
-        meipass = Path(getattr(sys, "_MEIPASS", root))
-        candidates.append(meipass / VERSION_NAME)
-    for path in candidates:
-        if path.is_file():
-            try:
-                text = path.read_text(encoding="utf-8").strip()
-                if text:
-                    return _normalize_version(text)
-            except OSError:
-                continue
+    path = root / VERSION_NAME
+    if path.is_file():
+        try:
+            text = path.read_text(encoding="utf-8").strip()
+            if text:
+                return _normalize_version(text)
+        except OSError:
+            pass
     return "0.0.0"
 
 
@@ -82,7 +80,6 @@ def _normalize_version(raw: str) -> str:
     s = (raw or "").strip()
     if s.lower().startswith("v"):
         s = s[1:]
-    # tag_name may be "1.0.1" or "v1.0.1-qr"
     m = re.match(r"^(\d+(?:\.\d+)*)", s)
     return m.group(1) if m else s
 
@@ -120,27 +117,26 @@ def _http_get(url: str, accept: str = "application/vnd.github+json") -> bytes:
         return resp.read()
 
 
-def _pick_asset(release: dict) -> dict | None:
-    assets = release.get("assets") or []
-    if not isinstance(assets, list):
-        return None
-    exe = None
-    zip_asset = None
-    for asset in assets:
-        if not isinstance(asset, dict):
-            continue
-        name = str(asset.get("name") or "").strip()
-        lower = name.lower()
-        if lower == EXE_NAME.lower():
-            exe = asset
-            break
-        if lower.endswith(".zip") and zip_asset is None:
-            zip_asset = asset
-    return exe or zip_asset
+def is_git_clone(root: Path | None = None) -> bool:
+    root = root or app_dir()
+    return (root / ".git").is_dir()
+
+
+def _git(args: list[str], root: Path | None = None) -> subprocess.CompletedProcess[str]:
+    root = root or app_dir()
+    return subprocess.run(  # noqa: S603
+        ["git", *args],
+        cwd=str(root),
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
+        check=False,
+    )
 
 
 def check_for_update() -> dict[str, Any]:
-    """Non-blocking friendly: call from a worker / JS after UI boot."""
+    """Non-blocking friendly: call from JS after UI boot. No exe asset required."""
     local = read_local_version()
     settings = load_settings()
     skipped = str(settings.get("skipVersion") or "").strip()
@@ -148,7 +144,6 @@ def check_for_update() -> dict[str, Any]:
         raw = _http_get(API_LATEST)
         release = json.loads(raw.decode("utf-8"))
     except urllib.error.HTTPError as exc:
-        # 404 = no releases yet — not an error for the user
         if exc.code == 404:
             return {
                 "ok": True,
@@ -158,6 +153,8 @@ def check_for_update() -> dict[str, Any]:
                 "error": None,
                 "reason": "no_releases",
                 "autoUpdate": bool(settings.get("autoUpdate")),
+                "mode": "sources",
+                "gitClone": is_git_clone(),
                 "repo": RELEASE_REPO,
             }
         return {
@@ -167,6 +164,8 @@ def check_for_update() -> dict[str, Any]:
             "remote": None,
             "error": f"HTTP {exc.code}",
             "autoUpdate": bool(settings.get("autoUpdate")),
+            "mode": "sources",
+            "gitClone": is_git_clone(),
             "repo": RELEASE_REPO,
         }
     except Exception as exc:  # noqa: BLE001
@@ -177,15 +176,17 @@ def check_for_update() -> dict[str, Any]:
             "remote": None,
             "error": str(exc),
             "autoUpdate": bool(settings.get("autoUpdate")),
+            "mode": "sources",
+            "gitClone": is_git_clone(),
             "repo": RELEASE_REPO,
         }
 
     tag = str(release.get("tag_name") or release.get("name") or "").strip()
     remote = _normalize_version(tag)
-    asset = _pick_asset(release)
-    available = bool(remote and is_newer(remote, local) and asset)
+    available = bool(remote and is_newer(remote, local))
     if skipped and _normalize_version(skipped) == remote:
         available = False
+    zipball = release.get("zipball_url") or f"https://api.github.com/repos/{RELEASE_REPO}/zipball/{tag}"
     return {
         "ok": True,
         "updateAvailable": available,
@@ -195,17 +196,16 @@ def check_for_update() -> dict[str, Any]:
         "name": release.get("name"),
         "body": (release.get("body") or "")[:2000],
         "htmlUrl": release.get("html_url"),
-        "assetName": (asset or {}).get("name"),
-        "assetUrl": (asset or {}).get("browser_download_url"),
-        "assetApiUrl": (asset or {}).get("url"),
+        "zipballUrl": zipball,
         "autoUpdate": bool(settings.get("autoUpdate")),
-        "error": None if asset or not is_newer(remote, local) else "no_asset",
+        "mode": "sources",
+        "gitClone": is_git_clone(),
+        "error": None,
         "repo": RELEASE_REPO,
     }
 
 
 def dismiss_update(version: str | None = None) -> dict[str, Any]:
-    """Remember 'Later' for this remote version (session + persist skip)."""
     ver = _normalize_version(version or "")
     if ver:
         save_settings({"skipVersion": ver})
@@ -217,72 +217,126 @@ def set_auto_update(enabled: bool) -> dict[str, Any]:
     return {"ok": True, "autoUpdate": bool(data.get("autoUpdate"))}
 
 
-def _download_asset(asset_api_url: str | None, browser_url: str | None, dest: Path) -> None:
-    url = (asset_api_url or browser_url or "").strip()
-    if not url:
-        raise RuntimeError("Asset URL manquante")
-    # Prefer API octet-stream when we have an API asset URL
-    accept = "application/octet-stream" if asset_api_url else "*/*"
-    data = _http_get(url if asset_api_url else (browser_url or url), accept=accept)
-    dest.write_bytes(data)
+def _apply_via_git_pull(remote: str) -> dict[str, Any]:
+    root = app_dir()
+    local = read_local_version(root)
+    fetch = _git(["fetch", "--tags", "origin"], root)
+    if fetch.returncode != 0:
+        return {
+            "ok": False,
+            "applied": False,
+            "local": local,
+            "remote": remote,
+            "error": (fetch.stderr or fetch.stdout or "git fetch failed").strip()[:500],
+            "method": "git_pull",
+        }
+    pull = _git(["pull", "--ff-only", "origin", "HEAD"], root)
+    if pull.returncode != 0:
+        # Fallback: pull current branch
+        branch = _git(["rev-parse", "--abbrev-ref", "HEAD"], root)
+        br = (branch.stdout or "main").strip() or "main"
+        pull = _git(["pull", "--ff-only", "origin", br], root)
+    if pull.returncode != 0:
+        return {
+            "ok": False,
+            "applied": False,
+            "local": local,
+            "remote": remote,
+            "error": (pull.stderr or pull.stdout or "git pull failed").strip()[:500],
+            "method": "git_pull",
+        }
+    save_settings({"skipVersion": ""})
+    new_local = read_local_version(root)
+    return {
+        "ok": True,
+        "applied": True,
+        "restarting": False,
+        "local": local,
+        "remote": remote,
+        "newLocal": new_local,
+        "method": "git_pull",
+        "error": None,
+        "note": "Sources mises à jour via git pull — relancez Lancer.bat",
+    }
 
 
-def _extract_exe_from_zip(zip_path: Path, dest_exe: Path) -> None:
-    with zipfile.ZipFile(zip_path, "r") as zf:
-        members = [n for n in zf.namelist() if n.replace("\\", "/").rstrip("/").split("/")[-1].lower() == EXE_NAME.lower()]
-        if not members:
-            raise RuntimeError(f"{EXE_NAME} introuvable dans le zip")
-        # Prefer shallowest path
-        members.sort(key=lambda n: n.count("/"))
-        with zf.open(members[0]) as src, dest_exe.open("wb") as out:
-            out.write(src.read())
-        # Optional VERSION inside zip
-        ver_members = [
-            n
-            for n in zf.namelist()
-            if n.replace("\\", "/").rstrip("/").split("/")[-1].upper() == VERSION_NAME
-        ]
-        if ver_members:
-            ver_members.sort(key=lambda n: n.count("/"))
-            try:
-                text = zf.read(ver_members[0]).decode("utf-8").strip()
-                if text:
-                    (dest_exe.parent / VERSION_NAME).write_text(text + "\n", encoding="utf-8")
-            except (OSError, UnicodeDecodeError):
-                pass
+def _copy_tree(src: Path, dest: Path) -> None:
+    if dest.exists():
+        if dest.is_dir():
+            shutil.rmtree(dest)
+        else:
+            dest.unlink()
+    if src.is_dir():
+        shutil.copytree(src, dest)
+    else:
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(src, dest)
 
 
-def _write_finish_script(target_exe: Path, staged_exe: Path, version: str) -> Path:
-    """Batch that waits for this process to exit, replaces exe, writes VERSION, relaunches."""
-    script = target_exe.parent / "_qrmake_update_finish.cmd"
-    pid = os.getpid()
-    # Escape for cmd: use short paths via quotes
-    lines = [
-        "@echo off",
-        "setlocal",
-        f'set "TARGET={target_exe}"',
-        f'set "STAGED={staged_exe}"',
-        f'set "VERFILE={target_exe.parent / VERSION_NAME}"',
-        f"set \"PID={pid}\"",
-        f'set "NEWVER={version}"',
-        ":wait",
-        'tasklist /FI "PID eq %PID%" 2>nul | find "%PID%" >nul',
-        "if not errorlevel 1 (",
-        "  timeout /t 1 /nobreak >nul",
-        "  goto wait",
-        ")",
-        'copy /Y "%STAGED%" "%TARGET%" >nul',
-        'if exist "%STAGED%" del /F /Q "%STAGED%" >nul 2>&1',
-        'echo %NEWVER%>"%VERFILE%"',
-        'start "" "%TARGET%"',
-        'del /F /Q "%~f0" >nul 2>&1',
-    ]
-    script.write_text("\r\n".join(lines) + "\r\n", encoding="utf-8")
-    return script
+def _apply_via_source_zip(release: dict, remote: str) -> dict[str, Any]:
+    root = app_dir()
+    local = read_local_version(root)
+    tag = str(release.get("tag_name") or "").strip()
+    zip_url = str(release.get("zipball_url") or "").strip()
+    if not zip_url and tag:
+        zip_url = f"https://api.github.com/repos/{RELEASE_REPO}/zipball/{tag}"
+    if not zip_url:
+        return {
+            "ok": False,
+            "applied": False,
+            "local": local,
+            "remote": remote,
+            "error": "zipball URL manquante",
+            "method": "source_zip",
+        }
+
+    tmp_dir = Path(tempfile.mkdtemp(prefix="qrmake-src-"))
+    try:
+        zip_path = tmp_dir / "source.zip"
+        zip_path.write_bytes(_http_get(zip_url, accept="application/vnd.github+json"))
+        extract_dir = tmp_dir / "extracted"
+        extract_dir.mkdir(parents=True, exist_ok=True)
+        with zipfile.ZipFile(zip_path, "r") as zf:
+            zf.extractall(extract_dir)
+        tops = [p for p in extract_dir.iterdir() if p.is_dir()]
+        if not tops:
+            raise RuntimeError("Archive source vide")
+        # GitHub zipball has a single top folder repo-sha
+        src_root = tops[0]
+        for name in REFRESH_TOP:
+            src = src_root / name
+            if not src.exists():
+                continue
+            _copy_tree(src, root / name)
+        # Always write VERSION from remote tag when present
+        (root / VERSION_NAME).write_text(remote + "\n", encoding="utf-8")
+        save_settings({"skipVersion": ""})
+        return {
+            "ok": True,
+            "applied": True,
+            "restarting": False,
+            "local": local,
+            "remote": remote,
+            "newLocal": read_local_version(root),
+            "method": "source_zip",
+            "error": None,
+            "note": "Sources rafraîchies depuis GitHub — relancez Lancer.bat",
+        }
+    except Exception as exc:  # noqa: BLE001
+        return {
+            "ok": False,
+            "applied": False,
+            "local": local,
+            "remote": remote,
+            "error": str(exc),
+            "method": "source_zip",
+        }
+    finally:
+        shutil.rmtree(tmp_dir, ignore_errors=True)
 
 
 def apply_update() -> dict[str, Any]:
-    """Download latest release asset and schedule replace + relaunch when frozen."""
+    """Update sources: git pull if clone, else release source zipball. No .exe."""
     local = read_local_version()
     try:
         raw = _http_get(API_LATEST)
@@ -294,15 +348,14 @@ def apply_update() -> dict[str, Any]:
 
     tag = str(release.get("tag_name") or release.get("name") or "").strip()
     remote = _normalize_version(tag)
-    asset = _pick_asset(release)
-    if not remote or not asset:
+    if not remote:
         return {
             "ok": True,
             "applied": False,
             "local": local,
-            "remote": remote or None,
+            "remote": None,
             "error": None,
-            "reason": "no_asset" if remote else "no_releases",
+            "reason": "no_releases",
         }
     if not is_newer(remote, local):
         return {
@@ -315,63 +368,6 @@ def apply_update() -> dict[str, Any]:
             "reason": "up_to_date",
         }
 
-    asset_name = str(asset.get("name") or "")
-    root = app_dir()
-    target_exe = Path(sys.executable).resolve() if getattr(sys, "frozen", False) else root / EXE_NAME
-
-    try:
-        tmp_dir = Path(tempfile.mkdtemp(prefix="qrmake-upd-"))
-        staged = tmp_dir / EXE_NAME
-        if asset_name.lower().endswith(".zip"):
-            zip_path = tmp_dir / "release.zip"
-            _download_asset(asset.get("url"), asset.get("browser_download_url"), zip_path)
-            _extract_exe_from_zip(zip_path, staged)
-        else:
-            _download_asset(asset.get("url"), asset.get("browser_download_url"), staged)
-
-        if not staged.is_file() or staged.stat().st_size < 1024:
-            raise RuntimeError("Téléchargement invalide")
-
-        (root / VERSION_NAME).write_text(remote + "\n", encoding="utf-8")
-        save_settings({"skipVersion": ""})
-
-        # Replace running / existing exe via finish script (file may be locked)
-        if getattr(sys, "frozen", False) or target_exe.is_file():
-            beside = target_exe.with_suffix(".exe.new")
-            beside.write_bytes(staged.read_bytes())
-            script = _write_finish_script(target_exe, beside, remote)
-            creationflags = 0x08000000  # CREATE_NO_WINDOW
-            subprocess.Popen(  # noqa: S603
-                ["cmd.exe", "/c", str(script)],
-                cwd=str(target_exe.parent),
-                creationflags=creationflags,
-                close_fds=True,
-            )
-            return {
-                "ok": True,
-                "applied": True,
-                "restarting": True,
-                "local": local,
-                "remote": remote,
-                "error": None,
-            }
-
-        target_exe.write_bytes(staged.read_bytes())
-        return {
-            "ok": True,
-            "applied": True,
-            "restarting": False,
-            "local": local,
-            "remote": remote,
-            "path": str(target_exe),
-            "error": None,
-            "note": "QrMake.exe mis à jour — relancez via Lancer.bat",
-        }
-    except Exception as exc:  # noqa: BLE001
-        return {
-            "ok": False,
-            "applied": False,
-            "error": str(exc),
-            "local": local,
-            "remote": remote,
-        }
+    if is_git_clone():
+        return _apply_via_git_pull(remote)
+    return _apply_via_source_zip(release, remote)

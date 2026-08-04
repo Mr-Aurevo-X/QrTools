@@ -8,3 +8,6 @@ dist/
 Thumbs.db
 *.log
 *.exe
+*.exe.protaudit/
+QrMake.exe.protaudit/
+_qrmake_update_finish.cmd

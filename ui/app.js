@@ -24,7 +24,7 @@
       legalUpdates: "Mise à jour non garantie — vérif. optionnelle GitHub",
       aboutTitle: "À propos — QrMake",
       aboutBody:
-        "Générateur de QR codes Mr-Aurevo-X. 100 % gratuit, 100 % local. Mise à jour non garantie (pas d’obligation). L’app peut vérifier GitHub Releases et se mettre à jour si une release existe.",
+        "Générateur de QR codes Mr-Aurevo-X. 100 % gratuit, 100 % local. Mise à jour non garantie (pas d’obligation). L’app peut vérifier GitHub Releases et proposer une mise à jour des sources (git pull / zip).",
       aboutRights:
         "Redistribution, reverse engineering ou suppression du copyright interdits sans accord écrit.",
       btnAbout: "À propos",
@@ -33,8 +33,8 @@
       updateDetail: "v{local} → v{remote}",
       btnUpdate: "Mettre à jour",
       btnLater: "Plus tard",
-      updateApplying: "Téléchargement…",
-      updateDone: "Mise à jour prête — redémarrage…",
+      updateApplying: "Mise à jour des sources…",
+      updateDone: "Sources à jour — relancez Lancer.bat",
       updateFail: "Mise à jour impossible",
       hostMissing: "Host indisponible",
       ready: "Prêt",
@@ -108,7 +108,7 @@
       legalUpdates: "Updates not guaranteed — optional GitHub check",
       aboutTitle: "About — QrMake",
       aboutBody:
-        "Mr-Aurevo-X QR generator. 100% free, 100% local. Updates not guaranteed (no obligation). The app can check GitHub Releases and update when a release exists.",
+        "Mr-Aurevo-X QR generator. 100% free, 100% local. Updates not guaranteed (no obligation). The app can check GitHub Releases and offer a source update (git pull / zip).",
       aboutRights:
         "Redistribution, reverse engineering, or stripping copyright is forbidden without written consent.",
       btnAbout: "About",
@@ -117,8 +117,8 @@
       updateDetail: "v{local} → v{remote}",
       btnUpdate: "Update",
       btnLater: "Later",
-      updateApplying: "Downloading…",
-      updateDone: "Update ready — restarting…",
+      updateApplying: "Updating sources…",
+      updateDone: "Sources updated — relaunch Lancer.bat",
       updateFail: "Update failed",
       hostMissing: "Host unavailable",
       ready: "Ready",

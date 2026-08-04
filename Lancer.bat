@@ -1,12 +1,7 @@
 @echo off
 REM © 2026 Mr-Aurevo-X · QrMake · 100% local · free · updates not guaranteed
-REM Silent launcher — no lingering CMD console (pythonw / exe)
+REM Silent launcher — pythonw + venv only (no CMD flash, no .exe)
 cd /d "%~dp0"
-
-if exist "%~dp0QrMake.exe" (
-  start "" "%~dp0QrMake.exe"
-  exit /b 0
-)
 
 if /I "%~1"=="_hidden" goto :run
 mshta "javascript:var sh=new ActiveXObject('WScript.Shell');sh.Run('\"%~f0\" _hidden',0,false);close();"
