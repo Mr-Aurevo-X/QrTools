@@ -1,22 +1,21 @@
 # QrMake
 
-**© 2026 Mr-Aurevo-X · QrMake · 100% local · free · updates not guaranteed**
+**[Download QrMake.exe](https://github.com/Mr-Aurevo-X/QrMake/releases/latest/download/QrMake.exe)** · **[All releases](https://github.com/Mr-Aurevo-X/QrMake/releases)**
+
+> Direct Windows binary (latest). Open [Releases](https://github.com/Mr-Aurevo-X/QrMake/releases) if the right-sidebar “Releases” link is scrolled away — downloads are **not** under “Tags”.
+
+**© 2026 Mr-Aurevo-X — QrMake — 100% local — free — updates not guaranteed**
 
 Générateur de QR codes multi-payloads — 100 % local, 100 % gratuit.  
 Multi-payload QR generator — 100% local, 100% free.
 
-Public showcase: [github.com/Mr-Aurevo-X/QrMake](https://github.com/Mr-Aurevo-X/QrMake)
-
 ## Download / Téléchargement
 
-**[Télécharger QrMake.exe (GitHub Releases)](https://github.com/Mr-Aurevo-X/QrMake/releases/latest)** — dernière version stable.
+- **One-click:** [QrMake.exe](https://github.com/Mr-Aurevo-X/QrMake/releases/latest/download/QrMake.exe)
+- **Release notes / all versions:** [github.com/Mr-Aurevo-X/QrMake/releases](https://github.com/Mr-Aurevo-X/QrMake/releases)
 
-Ou parcourir toutes les versions : [Releases](https://github.com/Mr-Aurevo-X/QrMake/releases).
-
-Double-cliquer sur QrMake.exe pour lancer (pas d’installation).  
-Double-click QrMake.exe to run (no install).
-
-
+Double-cliquer sur `QrMake.exe` pour lancer (pas d'installation).  
+Double-click `QrMake.exe` to run (no install).
 
 Local SoT (public vitrine, **not** in L’Atelier Windows / PC Command):
 
