@@ -64,6 +64,12 @@ body {
   object-fit: cover;
   flex-shrink: 0;
   box-shadow: 0 0 0 1px var(--border-strong);
+  display: block;
+  overflow: hidden;
+}
+
+svg.brand-mark {
+  object-fit: unset;
 }
 
 .brand-text h1 {
@@ -243,6 +249,45 @@ body {
   flex-wrap: wrap;
   gap: 8px;
   margin-top: 12px;
+}
+
+.update-banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0 0 14px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(224, 53, 69, 0.45);
+  background: rgba(224, 53, 69, 0.12);
+}
+
+.update-banner[hidden] {
+  display: none !important;
+}
+
+.update-banner-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.update-banner-text strong {
+  font-size: 0.95rem;
+}
+
+.update-banner-text span {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.update-banner-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .muted {

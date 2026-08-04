@@ -17,18 +17,25 @@
       features:
         "Texte, URL, Wi‑Fi, contact, email, tel, SMS, geo, événement, WhatsApp, brut — aperçu live, PNG local.",
       privacy:
-        "Mr-Aurevo-X ne collecte aucune donnée. Génération QR 100 % locale. Aucun envoi réseau.",
+        "Mr-Aurevo-X ne collecte aucune donnée. Génération QR 100 % locale. Seul appel réseau optionnel : vérif. de mise à jour GitHub.",
       badgeFree: "100 % gratuit",
       legalFree: "100 % gratuit",
       legalLocal: "100 % local — aucun cloud, aucune télémétrie",
-      legalUpdates: "Mise à jour non garantie — pas de mise à jour auto",
+      legalUpdates: "Mise à jour non garantie — vérif. optionnelle GitHub",
       aboutTitle: "À propos — QrMake",
       aboutBody:
-        "Générateur de QR codes Mr-Aurevo-X. 100 % gratuit, 100 % local. Mise à jour non garantie.",
+        "Générateur de QR codes Mr-Aurevo-X. 100 % gratuit, 100 % local. Mise à jour non garantie (pas d’obligation). L’app peut vérifier GitHub Releases et se mettre à jour si une release existe.",
       aboutRights:
         "Redistribution, reverse engineering ou suppression du copyright interdits sans accord écrit.",
       btnAbout: "À propos",
       btnClose: "Fermer",
+      updateTitle: "Nouvelle version disponible",
+      updateDetail: "v{local} → v{remote}",
+      btnUpdate: "Mettre à jour",
+      btnLater: "Plus tard",
+      updateApplying: "Téléchargement…",
+      updateDone: "Mise à jour prête — redémarrage…",
+      updateFail: "Mise à jour impossible",
       hostMissing: "Host indisponible",
       ready: "Prêt",
       fail: "Échec",
@@ -94,18 +101,25 @@
       features:
         "Text, URL, Wi‑Fi, contact, email, tel, SMS, geo, event, WhatsApp, raw — live preview, local PNG.",
       privacy:
-        "Mr-Aurevo-X does not collect your data. 100% local QR generation. No network upload.",
+        "Mr-Aurevo-X does not collect your data. 100% local QR generation. Only optional network call: GitHub update check.",
       badgeFree: "100% free",
       legalFree: "100% free",
       legalLocal: "100% local — no cloud, no telemetry",
-      legalUpdates: "Updates not guaranteed — no auto-update",
+      legalUpdates: "Updates not guaranteed — optional GitHub check",
       aboutTitle: "About — QrMake",
       aboutBody:
-        "Mr-Aurevo-X QR generator. 100% free, 100% local. Updates not guaranteed.",
+        "Mr-Aurevo-X QR generator. 100% free, 100% local. Updates not guaranteed (no obligation). The app can check GitHub Releases and update when a release exists.",
       aboutRights:
         "Redistribution, reverse engineering, or stripping copyright is forbidden without written consent.",
       btnAbout: "About",
       btnClose: "Close",
+      updateTitle: "New version available",
+      updateDetail: "v{local} → v{remote}",
+      btnUpdate: "Update",
+      btnLater: "Later",
+      updateApplying: "Downloading…",
+      updateDone: "Update ready — restarting…",
+      updateFail: "Update failed",
       hostMissing: "Host unavailable",
       ready: "Ready",
       fail: "Failed",
@@ -234,8 +248,14 @@
     btnCopyPayload: document.getElementById("btnCopyPayload"),
     btnAbout: document.getElementById("btnAbout"),
     aboutDialog: document.getElementById("aboutDialog"),
+    updateBanner: document.getElementById("updateBanner"),
+    updateTitle: document.getElementById("updateTitle"),
+    updateDetail: document.getElementById("updateDetail"),
+    btnUpdateNow: document.getElementById("btnUpdateNow"),
+    btnUpdateLater: document.getElementById("btnUpdateLater"),
   };
 
+  let pendingRemoteVersion = null;
   let debounceTimer = null;
 
   function applyAccent(hex) {
@@ -597,6 +617,73 @@
     el.btnCopyPayload.textContent = t("btnCopyPayload");
     el.btnAbout.textContent = t("btnAbout");
     el.qrEmpty.textContent = t("emptyPreview");
+    if (el.updateTitle) el.updateTitle.textContent = t("updateTitle");
+    if (el.btnUpdateNow) el.btnUpdateNow.textContent = t("btnUpdate");
+    if (el.btnUpdateLater) el.btnUpdateLater.textContent = t("btnLater");
+  }
+
+  function showUpdateBanner(info) {
+    if (!el.updateBanner || !info) return;
+    pendingRemoteVersion = info.remote || null;
+    const detail = t("updateDetail")
+      .replace("{local}", info.local || "?")
+      .replace("{remote}", info.remote || "?");
+    if (el.updateDetail) el.updateDetail.textContent = detail;
+    if (el.updateTitle) el.updateTitle.textContent = t("updateTitle");
+    if (el.btnUpdateNow) el.btnUpdateNow.textContent = t("btnUpdate");
+    if (el.btnUpdateLater) el.btnUpdateLater.textContent = t("btnLater");
+    el.updateBanner.hidden = false;
+  }
+
+  function hideUpdateBanner() {
+    if (el.updateBanner) el.updateBanner.hidden = true;
+  }
+
+  async function runUpdateCheck(api) {
+    if (!api || !api.check_for_update) return;
+    try {
+      const info = await api.check_for_update();
+      if (!info || !info.ok || !info.updateAvailable) return;
+      if (info.autoUpdate && api.apply_update) {
+        setStatus(t("updateApplying"));
+        const res = await api.apply_update();
+        if (res && res.ok && res.applied) {
+          setStatus(t("updateDone"));
+          return;
+        }
+      }
+      showUpdateBanner(info);
+    } catch (_) {
+      /* offline / rate-limit — silent */
+    }
+  }
+
+  async function applyUpdateNow() {
+    const api = await apiReady();
+    if (!api || !api.apply_update) return;
+    if (el.btnUpdateNow) el.btnUpdateNow.disabled = true;
+    setStatus(t("updateApplying"));
+    try {
+      const res = await api.apply_update();
+      if (res && res.ok && res.applied) {
+        setStatus(t("updateDone"));
+        hideUpdateBanner();
+        return;
+      }
+      setStatus((res && res.error) || t("updateFail"));
+    } catch (e) {
+      setStatus(String(e.message || e) || t("updateFail"));
+    } finally {
+      if (el.btnUpdateNow) el.btnUpdateNow.disabled = false;
+    }
+  }
+
+  async function dismissUpdateLater() {
+    const api = await apiReady();
+    hideUpdateBanner();
+    try {
+      if (api && api.dismiss_update) await api.dismiss_update(pendingRemoteVersion || "");
+    } catch (_) {}
   }
 
   el.btnGenerate.addEventListener("click", generate);
@@ -606,6 +693,8 @@
   el.btnAbout.addEventListener("click", () => {
     if (el.aboutDialog && el.aboutDialog.showModal) el.aboutDialog.showModal();
   });
+  if (el.btnUpdateNow) el.btnUpdateNow.addEventListener("click", applyUpdateNow);
+  if (el.btnUpdateLater) el.btnUpdateLater.addEventListener("click", dismissUpdateLater);
 
   (async () => {
     const api = await apiReady();
@@ -615,5 +704,9 @@
     renderControls();
     renderShared();
     await generate();
+    // Non-blocking: schedule after first paint / generate
+    setTimeout(() => {
+      runUpdateCheck(api);
+    }, 800);
   })();
 })();

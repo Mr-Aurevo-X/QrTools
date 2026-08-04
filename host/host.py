@@ -28,6 +28,8 @@ from qrcode.image.pil import PilImage
 
 import webview
 
+import updater as qrmake_updater
+
 DEFAULT_ACCENT = "#e03545"
 ENV_ACCENT = "MRAUREVOX_ACCENT"
 ENV_LANG = "MRAUREVOX_LANG"
@@ -350,6 +352,39 @@ class Api:
             "language": resolve_suite_language(),
             "theme": resolve_suite_theme(),
         }
+
+    def get_version(self) -> dict:
+        return {
+            "ok": True,
+            "version": qrmake_updater.read_local_version(),
+            "repo": qrmake_updater.RELEASE_REPO,
+        }
+
+    def check_for_update(self) -> dict:
+        return qrmake_updater.check_for_update()
+
+    def apply_update(self) -> dict:
+        result = qrmake_updater.apply_update()
+        if result.get("ok") and result.get("restarting"):
+            if self._window is not None:
+                try:
+                    self._window.destroy()
+                except Exception:
+                    pass
+            # Let the finish script replace the locked exe
+            try:
+                import threading
+
+                threading.Timer(0.4, lambda: os._exit(0)).start()
+            except Exception:
+                pass
+        return result
+
+    def dismiss_update(self, version: str | None = None) -> dict:
+        return qrmake_updater.dismiss_update(version)
+
+    def set_auto_update(self, enabled: bool = False) -> dict:
+        return qrmake_updater.set_auto_update(bool(enabled))
 
     def build_payload(self, mode: str = "text", fields: dict | None = None) -> dict:
         return build_payload(mode, fields)

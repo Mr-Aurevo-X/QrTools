@@ -31,7 +31,23 @@
   <div class="shell">
     <aside class="sidebar">
       <div class="brand">
-        <img class="brand-mark" src="app-icon.svg" width="40" height="40" alt="" />
+        <!-- inline SVG: WebView2 file:// breaks external img under paths with apostrophe -->
+        <svg class="brand-mark" width="40" height="40" viewBox="0 0 64 64" role="img" aria-label="QrMake" xmlns="http://www.w3.org/2000/svg">
+          <rect width="64" height="64" rx="14" fill="#0b0b0d"/>
+          <rect x="10" y="10" width="18" height="18" rx="3" fill="#e03545"/>
+          <rect x="14" y="14" width="10" height="10" rx="1.5" fill="#0b0b0d"/>
+          <rect x="36" y="10" width="18" height="18" rx="3" fill="#eef2f8"/>
+          <rect x="40" y="14" width="10" height="10" rx="1.5" fill="#0b0b0d"/>
+          <rect x="10" y="36" width="18" height="18" rx="3" fill="#eef2f8"/>
+          <rect x="14" y="40" width="10" height="10" rx="1.5" fill="#0b0b0d"/>
+          <rect x="36" y="36" width="6" height="6" fill="#e03545"/>
+          <rect x="44" y="36" width="6" height="6" fill="#eef2f8"/>
+          <rect x="52" y="36" width="2" height="6" fill="#e03545"/>
+          <rect x="36" y="44" width="6" height="6" fill="#eef2f8"/>
+          <rect x="48" y="44" width="6" height="6" fill="#e03545"/>
+          <rect x="36" y="52" width="10" height="2" fill="#eef2f8"/>
+          <rect x="48" y="52" width="6" height="2" fill="#e03545"/>
+        </svg>
         <div class="brand-text">
           <h1>QrMake</h1>
           <p data-i18n="tagline">QR · multi-payloads</p>
@@ -48,12 +64,12 @@
       <ul class="legal-strip" id="legalStrip">
         <li data-i18n="legalFree">100 % gratuit</li>
         <li data-i18n="legalLocal">100 % local — aucun cloud, aucune télémétrie</li>
-        <li data-i18n="legalUpdates">Mise à jour non garantie — pas de mise à jour auto</li>
+        <li data-i18n="legalUpdates">Mise à jour non garantie — vérif. optionnelle GitHub</li>
       </ul>
       <p class="privacy-note" id="privacyNote"
-        data-privacy-fr="Mr-Aurevo-X ne collecte aucune donnée. Génération QR 100 % locale. Aucun envoi réseau."
-        data-privacy-en="Mr-Aurevo-X does not collect your data. 100% local QR generation. No network upload.">
-        Mr-Aurevo-X ne collecte aucune donnée. Génération QR 100 % locale. Aucun envoi réseau.
+        data-privacy-fr="Mr-Aurevo-X ne collecte aucune donnée. Génération QR 100 % locale. Seul appel réseau optionnel : vérif. de mise à jour GitHub."
+        data-privacy-en="Mr-Aurevo-X does not collect your data. 100% local QR generation. Only optional network call: GitHub update check.">
+        Mr-Aurevo-X ne collecte aucune donnée. Génération QR 100 % locale. Seul appel réseau optionnel : vérif. de mise à jour GitHub.
       </p>
       <p class="copyright" data-i18n="copyright">Copyright © 2026 Mr-Aurevo-X — tous droits réservés</p>
       <button type="button" class="btn about-btn" id="btnAbout" data-i18n="btnAbout">À propos</button>
@@ -64,6 +80,17 @@
         <h2 data-i18n="title">QrMake</h2>
         <p id="meta" data-i18n="subtitle">Aperçu live · ECC · PNG</p>
       </header>
+
+      <div class="update-banner" id="updateBanner" hidden role="status" aria-live="polite">
+        <div class="update-banner-text">
+          <strong id="updateTitle" data-i18n="updateTitle">Nouvelle version disponible</strong>
+          <span id="updateDetail"></span>
+        </div>
+        <div class="update-banner-actions">
+          <button type="button" class="btn accent" id="btnUpdateNow" data-i18n="btnUpdate">Mettre à jour</button>
+          <button type="button" class="btn ghost" id="btnUpdateLater" data-i18n="btnLater">Plus tard</button>
+        </div>
+      </div>
 
       <div class="mode-tabs" id="modeTabs" role="tablist"></div>
 
@@ -95,11 +122,11 @@
   <dialog class="about-dialog" id="aboutDialog">
     <form method="dialog" class="about-card">
       <h3 data-i18n="aboutTitle">À propos — QrMake</h3>
-      <p data-i18n="aboutBody">Générateur de QR codes Mr-Aurevo-X. 100 % gratuit, 100 % local. Mise à jour non garantie.</p>
+      <p data-i18n="aboutBody">Générateur de QR codes Mr-Aurevo-X. 100 % gratuit, 100 % local. Mise à jour non garantie (pas d’obligation). L’app peut vérifier GitHub Releases et se mettre à jour si une release existe.</p>
       <ul>
         <li data-i18n="legalFree">100 % gratuit</li>
         <li data-i18n="legalLocal">100 % local — aucun cloud, aucune télémétrie</li>
-        <li data-i18n="legalUpdates">Mise à jour non garantie — pas de mise à jour auto</li>
+        <li data-i18n="legalUpdates">Mise à jour non garantie — vérif. optionnelle GitHub</li>
       </ul>
       <p class="copyright" data-i18n="copyright">Copyright © 2026 Mr-Aurevo-X — tous droits réservés</p>
       <p class="about-note" data-i18n="aboutRights">Redistribution, reverse engineering ou suppression du copyright interdits sans accord écrit.</p>
