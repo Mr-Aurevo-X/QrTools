@@ -529,7 +529,7 @@ def main() -> None:
         raise SystemExit(f"UI missing: {index}")
     api = Api()
     create_tool_window(
-        title="QrMake — L'Atelier PC Command",
+        title="QrMake — Mr-Aurevo-X",
         url=index.as_uri(),
         js_api=api,
         width=1180,
