@@ -134,6 +134,14 @@
   font: inherit;
   resize: vertical;
 }
+/* Native <select> popup: WebView2/Edge composites a translucent select
+   background to white, leaving light option text unreadable. Force opaque,
+   theme-aware colors on the option list. */
+select option,
+select optgroup {
+  background-color: var(--panel2);
+  color: var(--text);
+}
 .payload-view textarea {
   font-family: var(--mono);
   font-size: 0.75rem;
