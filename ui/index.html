@@ -13,6 +13,7 @@
   <link rel="stylesheet" href="tokens.css" />
   <link rel="stylesheet" href="shell.css" />
   <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="hub-chrome.css" />
   <script>
     (function () {
       try {
@@ -26,7 +27,25 @@
     })();
   </script>
 </head>
-<body>
+<body data-tool-title="QrMake">
+  <header class="pcd-nav" id="hubTitlebar">
+    <div class="brand pywebview-drag-region" title="L'Atelier PC Command" id="hubBrand">
+      <span class="mark" aria-hidden="true">PC</span>
+      <strong class="brand-title">
+        <span class="brand-atelier">L'Atelier</span>
+        <span class="brand-product">PC Command</span>
+      </strong>
+      <span class="hub-tool-name">QrMake</span>
+    </div>
+    <div class="nav-spacer pywebview-drag-region" aria-hidden="true"></div>
+    <div class="nav-right">
+      <div class="win-controls" role="group" aria-label="Fenêtre">
+        <button type="button" class="win-btn" id="winMin" title="Réduire" aria-label="Réduire">─</button>
+        <button type="button" class="win-btn" id="winMax" title="Agrandir" aria-label="Agrandir">□</button>
+        <button type="button" class="win-btn win-close" id="winClose" title="Fermer" aria-label="Fermer">×</button>
+      </div>
+    </div>
+  </header>
   <div class="bg" aria-hidden="true"></div>
   <div class="shell">
     <aside class="sidebar">
@@ -135,6 +154,7 @@
     </form>
   </dialog>
 
+  <script src="hub-chrome.js"></script>
   <script src="suite-boot.js"></script>
   <script src="app.js"></script>
 </body>

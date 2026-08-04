@@ -33,6 +33,7 @@ if str(_HOST_DIR) not in sys.path:
     sys.path.insert(0, str(_HOST_DIR))
 
 import updater as qrmake_updater
+from window_chrome import WindowChromeMixin, create_tool_window
 
 DEFAULT_ACCENT = "#e03545"
 ENV_ACCENT = "MRAUREVOX_ACCENT"
@@ -329,16 +330,17 @@ def render_qr_png(
     }
 
 
-class Api:
+class Api(WindowChromeMixin):
     """JS bridge — © 2026 Mr-Aurevo-X · QrMake · all rights reserved."""
 
     def __init__(self) -> None:
         self._window = None
+        self._maximized = False
         self._last_png: bytes | None = None
         self._last_payload: str = ""
 
     def set_window(self, window) -> None:
-        self._window = window
+        WindowChromeMixin.set_window(self, window)
 
     def get_suite_accent(self) -> dict:
         return {"ok": True, "accent": resolve_suite_accent()}
@@ -526,15 +528,15 @@ def main() -> None:
     if not index.is_file():
         raise SystemExit(f"UI missing: {index}")
     api = Api()
-    window = webview.create_window(
-        "QrMake — L'Atelier PC Command",
+    create_tool_window(
+        title="QrMake — L'Atelier PC Command",
         url=index.as_uri(),
         js_api=api,
         width=1180,
         height=820,
+        min_size=(960, 640),
         background_color="#0b0b0d",
     )
-    api.set_window(window)
     webview.start()
 
 
