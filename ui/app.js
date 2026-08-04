@@ -42,8 +42,11 @@
       loading: "Génération…",
       btnGenerate: "Générer",
       btnSave: "Sauver PNG",
+      btnPrint: "Imprimer",
       btnCopyImg: "Copier image",
       btnCopyPayload: "Copier payload",
+      printed: "Impression lancée",
+      printFail: "Impression impossible",
       copied: "Copié",
       copyFail: "Copie impossible",
       saved: "PNG enregistré",
@@ -126,8 +129,11 @@
       loading: "Generating…",
       btnGenerate: "Generate",
       btnSave: "Save PNG",
+      btnPrint: "Print",
       btnCopyImg: "Copy image",
       btnCopyPayload: "Copy payload",
+      printed: "Print started",
+      printFail: "Print failed",
       copied: "Copied",
       copyFail: "Copy failed",
       saved: "PNG saved",
@@ -244,6 +250,7 @@
     payloadOut: document.getElementById("payloadOut"),
     btnGenerate: document.getElementById("btnGenerate"),
     btnSave: document.getElementById("btnSave"),
+    btnPrint: document.getElementById("btnPrint"),
     btnCopyImg: document.getElementById("btnCopyImg"),
     btnCopyPayload: document.getElementById("btnCopyPayload"),
     btnAbout: document.getElementById("btnAbout"),
@@ -587,6 +594,21 @@
     }
   }
 
+  async function printImage() {
+    const api = await apiReady();
+    if (!api || !api.print_image) {
+      setStatus(t("printFail"));
+      return;
+    }
+    try {
+      const res = await api.print_image();
+      if (res && res.ok) setStatus(t("printed"));
+      else setStatus((res && res.error) || t("printFail"));
+    } catch (e) {
+      setStatus(String(e.message || e) || t("printFail"));
+    }
+  }
+
   async function copyPayload() {
     const api = await apiReady();
     const text = state.payload || "";
@@ -613,6 +635,7 @@
   function refreshChromeLabels() {
     el.btnGenerate.textContent = t("btnGenerate");
     el.btnSave.textContent = t("btnSave");
+    if (el.btnPrint) el.btnPrint.textContent = t("btnPrint");
     el.btnCopyImg.textContent = t("btnCopyImg");
     el.btnCopyPayload.textContent = t("btnCopyPayload");
     el.btnAbout.textContent = t("btnAbout");
@@ -688,6 +711,7 @@
 
   el.btnGenerate.addEventListener("click", generate);
   el.btnSave.addEventListener("click", savePng);
+  if (el.btnPrint) el.btnPrint.addEventListener("click", printImage);
   el.btnCopyImg.addEventListener("click", copyImage);
   el.btnCopyPayload.addEventListener("click", copyPayload);
   el.btnAbout.addEventListener("click", () => {

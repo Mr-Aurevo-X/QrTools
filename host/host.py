@@ -482,6 +482,23 @@ class Api:
             except Exception as exc:
                 return {"ok": False, "error": str(exc)}
 
+    def print_image(self) -> dict:
+        # © 2026 Mr-Aurevo-X · QrMake · direct print via Windows shell
+        if not self._last_png:
+            return {"ok": False, "error": "No QR generated yet"}
+        try:
+            import tempfile
+
+            fd, tmp = tempfile.mkstemp(prefix="qrmake_", suffix=".png")
+            os.close(fd)
+            path = Path(tmp)
+            path.write_bytes(self._last_png)
+            # Opens the system print dialog for the PNG (default image handler).
+            os.startfile(str(path), "print")  # noqa: S606 — intentional Windows print
+            return {"ok": True, "path": str(path)}
+        except Exception as exc:
+            return {"ok": False, "error": str(exc)}
+
     def copy_payload(self, text: str | None = None) -> dict:
         payload = text if text is not None else self._last_payload
         return self.copy_text(payload or "")
