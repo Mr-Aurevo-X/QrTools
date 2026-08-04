@@ -28,6 +28,10 @@ from qrcode.image.pil import PilImage
 
 import webview
 
+_HOST_DIR = Path(__file__).resolve().parent
+if str(_HOST_DIR) not in sys.path:
+    sys.path.insert(0, str(_HOST_DIR))
+
 import updater as qrmake_updater
 
 DEFAULT_ACCENT = "#e03545"

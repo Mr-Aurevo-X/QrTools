@@ -4,7 +4,7 @@
 
 a = Analysis(
     ['host\\host.py'],
-    pathex=[],
+    pathex=['host'],
     binaries=[],
     datas=[('ui', 'ui'), ('VERSION', '.')],
     hiddenimports=['clr', 'PIL', 'qrcode', 'qrcode.image.pil', 'updater'],
@@ -35,5 +35,5 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon=['ui\\brand-icon.ico'],
+    icon=['brand-icon.ico'],
 )
