@@ -1,0 +1,5 @@
+# © 2026 Mr-Aurevo-X · QrMake · 100% local · free · updates not guaranteed
+pywebview>=5.0
+qrcode[pil]>=7.4
+Pillow>=10.0
+pyinstaller>=6.0

@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- © 2026 Mr-Aurevo-X · QrMake · 100% local · free · updates not guaranteed -->
+  <meta name="author" content="Mr-Aurevo-X" />
+  <meta name="copyright" content="Copyright © 2026 Mr-Aurevo-X. All rights reserved." />
+  <title>QrMake — L'Atelier PC Command</title>
+  <link rel="stylesheet" href="vendor/pc-command-kit/tokens/kit.css" />
+  <link rel="stylesheet" href="vendor/pc-command-kit/components/embed.css" />
+  <link rel="stylesheet" href="fonts/fonts.css" />
+  <link rel="stylesheet" href="tokens.css" />
+  <link rel="stylesheet" href="shell.css" />
+  <link rel="stylesheet" href="styles.css" />
+  <script>
+    (function () {
+      try {
+        if (/(?:^|[?&])embed=1(?:&|$)/.test(location.search || "")) {
+          document.documentElement.classList.add("pcd-embed");
+          document.addEventListener("DOMContentLoaded", function () {
+            if (document.body) document.body.classList.add("pcd-embed");
+          });
+        }
+      } catch (e) {}
+    })();
+  </script>
+</head>
+<body>
+  <div class="bg" aria-hidden="true"></div>
+  <div class="shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <img class="brand-mark" src="app-icon.svg" width="40" height="40" alt="" />
+        <div class="brand-text">
+          <h1>QrMake</h1>
+          <p data-i18n="tagline">QR · multi-payloads</p>
+        </div>
+      </div>
+      <div class="badge-row">
+        <span class="badge">LOCAL</span>
+        <span class="badge free" data-i18n="badgeFree">100 % gratuit</span>
+      </div>
+      <div class="feature-desc" id="featureDesc">
+        <strong data-i18n="featuresTitle">Fonctions</strong>
+        <span data-i18n="features">Texte, URL, Wi‑Fi, contact, email, tel, SMS, geo, événement, WhatsApp, brut — aperçu live, PNG local.</span>
+      </div>
+      <ul class="legal-strip" id="legalStrip">
+        <li data-i18n="legalFree">100 % gratuit</li>
+        <li data-i18n="legalLocal">100 % local — aucun cloud, aucune télémétrie</li>
+        <li data-i18n="legalUpdates">Mise à jour non garantie — pas de mise à jour auto</li>
+      </ul>
+      <p class="privacy-note" id="privacyNote"
+        data-privacy-fr="Mr-Aurevo-X ne collecte aucune donnée. Génération QR 100 % locale. Aucun envoi réseau."
+        data-privacy-en="Mr-Aurevo-X does not collect your data. 100% local QR generation. No network upload.">
+        Mr-Aurevo-X ne collecte aucune donnée. Génération QR 100 % locale. Aucun envoi réseau.
+      </p>
+      <p class="copyright" data-i18n="copyright">Copyright © 2026 Mr-Aurevo-X — tous droits réservés</p>
+      <button type="button" class="btn about-btn" id="btnAbout" data-i18n="btnAbout">À propos</button>
+    </aside>
+
+    <div class="main">
+      <header class="page-header">
+        <h2 data-i18n="title">QrMake</h2>
+        <p id="meta" data-i18n="subtitle">Aperçu live · ECC · PNG</p>
+      </header>
+
+      <div class="mode-tabs" id="modeTabs" role="tablist"></div>
+
+      <div class="workspace">
+        <div class="panel controls" id="controls"></div>
+        <div class="preview-col">
+          <div class="qr-frame" id="qrFrame">
+            <img id="qrPreview" alt="QR preview" hidden />
+            <div class="qr-empty" id="qrEmpty" data-i18n="emptyPreview">Aperçu ici</div>
+          </div>
+          <div class="shared-opts" id="sharedOpts"></div>
+          <div class="toolbar">
+            <button type="button" class="btn accent" id="btnGenerate" data-i18n="btnGenerate">Générer</button>
+            <button type="button" class="btn" id="btnSave" data-i18n="btnSave">Sauver PNG</button>
+            <button type="button" class="btn" id="btnCopyImg" data-i18n="btnCopyImg">Copier image</button>
+            <button type="button" class="btn" id="btnCopyPayload" data-i18n="btnCopyPayload">Copier payload</button>
+          </div>
+          <label class="field payload-view">
+            <span data-i18n="payloadLabel">Payload</span>
+            <textarea id="payloadOut" readonly rows="3" spellcheck="false"></textarea>
+          </label>
+        </div>
+      </div>
+
+      <p class="status" id="status"></p>
+    </div>
+  </div>
+
+  <dialog class="about-dialog" id="aboutDialog">
+    <form method="dialog" class="about-card">
+      <h3 data-i18n="aboutTitle">À propos — QrMake</h3>
+      <p data-i18n="aboutBody">Générateur de QR codes Mr-Aurevo-X. 100 % gratuit, 100 % local. Mise à jour non garantie.</p>
+      <ul>
+        <li data-i18n="legalFree">100 % gratuit</li>
+        <li data-i18n="legalLocal">100 % local — aucun cloud, aucune télémétrie</li>
+        <li data-i18n="legalUpdates">Mise à jour non garantie — pas de mise à jour auto</li>
+      </ul>
+      <p class="copyright" data-i18n="copyright">Copyright © 2026 Mr-Aurevo-X — tous droits réservés</p>
+      <p class="about-note" data-i18n="aboutRights">Redistribution, reverse engineering ou suppression du copyright interdits sans accord écrit.</p>
+      <button type="submit" class="btn accent" data-i18n="btnClose">Fermer</button>
+    </form>
+  </dialog>
+
+  <script src="suite-boot.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
