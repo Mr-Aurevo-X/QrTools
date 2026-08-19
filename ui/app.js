@@ -1,4 +1,9 @@
 /**
+ * Copyright (c) 2026 Mr-Aurevo-X. All rights reserved.
+ * SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
+ * Author: Mr-Aurevo-X | https://github.com/Mr-Aurevo-X
+ */
+/**
  * QrTools — UI (proprietary)
  * © 2026 Mr-Aurevo-X · QrTools · 100% local · free · updates not guaranteed
  * All rights reserved. Do not strip copyright notices.
