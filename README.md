@@ -90,13 +90,23 @@ Produit `dist\QrTools.exe` puis copie vers `QrTools.exe` à la racine.
 Le `.exe` peut être gitignoré — rebuild via `Build.cmd`.  
 Pour publier une màj : bumper `VERSION`, build, créer une **GitHub Release** avec l’asset `QrTools.exe`.
 
-## Modes (v1)
+## Modes — Simple
+
+Onglet **Simple** : payloads multi-types (v1) :
 
 - Texte · URL (normalise `https://`) · Wi‑Fi (`WIFI:T:…;S:;P:;H:;;`)
 - Mot de passe (secret, champ masquable)
 - Contact vCard 3.0 · Email `mailto` · Tel · SMS · Geo · Event `VEVENT` · WhatsApp `wa.me` · Brut
 - Aperçu live · ECC L/M/Q/H (défaut M) · taille PNG 256–1024
-- Sauver PNG · copier image · copier payload
+- Sauver PNG · imprimer · copier image · copier payload
+
+## Mode — Lot (ex-QrBatch)
+
+Onglet **Lot** : une entrée par ligne (ou CSV : colonne 1 = contenu, colonne 2 = nom de fichier).
+
+- Import CSV/TXT · aperçu du 1ᵉʳ QR · compteur d’entrées
+- ECC/taille/marge partagés · tailles 128–2048 px
+- Export dossier `QrTools/` de PNG (+ ZIP optionnel) dans le dossier choisi
 
 ## UI kit
 
