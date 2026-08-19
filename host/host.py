@@ -1,17 +1,19 @@
-"""QrMake — générateur de QR codes multi-payloads (100 % local).
+"""QrTools — générateur de QR codes multi-payloads (100 % local).
 
-© 2026 Mr-Aurevo-X · QrMake · 100% local · free · updates not guaranteed
+© 2026 Mr-Aurevo-X · QrTools · 100% local · free · updates not guaranteed
 All rights reserved. Redistribution / reverse engineering without written consent forbidden.
 """
-# © 2026 Mr-Aurevo-X · QrMake · 100% local · free · updates not guaranteed
+# © 2026 Mr-Aurevo-X · QrTools · 100% local · free · updates not guaranteed
 from __future__ import annotations
 
 import base64
+import csv as csv_mod
 import io
 import json
 import os
 import re
 import sys
+import zipfile
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -32,7 +34,7 @@ _HOST_DIR = Path(__file__).resolve().parent
 if str(_HOST_DIR) not in sys.path:
     sys.path.insert(0, str(_HOST_DIR))
 
-import updater as qrmake_updater
+import updater as QrTools_updater
 from window_chrome import WindowChromeMixin, create_tool_window
 
 DEFAULT_ACCENT = "#e03545"
@@ -164,7 +166,7 @@ def _format_ics_dt(value: str, all_day: bool = False) -> str:
 
 
 def build_payload(mode: str, fields: dict[str, Any] | None = None) -> dict[str, Any]:
-    # © 2026 Mr-Aurevo-X · QrMake · payload builders · 100% local
+    # © 2026 Mr-Aurevo-X · QrTools · payload builders · 100% local
     mode = (mode or "text").strip().lower()
     f = fields if isinstance(fields, dict) else {}
 
@@ -253,7 +255,7 @@ def build_payload(mode: str, fields: dict[str, Any] | None = None) -> dict[str, 
         lines = [
             "BEGIN:VCALENDAR",
             "VERSION:2.0",
-            "PRODID:-//Mr-Aurevo-X//QrMake//EN",
+            "PRODID:-//Mr-Aurevo-X//QrTools//EN",
             "BEGIN:VEVENT",
             f"SUMMARY:{summary}",
         ]
@@ -295,7 +297,7 @@ def render_qr_png(
     size: int = 512,
     border: int = 2,
 ) -> dict[str, Any]:
-    # © 2026 Mr-Aurevo-X · QrMake · PNG render · free · updates not guaranteed
+    # © 2026 Mr-Aurevo-X · QrTools · PNG render · free · updates not guaranteed
     payload = str(payload or "")
     if not payload:
         return {"ok": False, "error": "Empty payload"}
@@ -330,8 +332,63 @@ def render_qr_png(
     }
 
 
+MAX_ROWS = 2000
+_SLUG_RE = re.compile(r"[^A-Za-z0-9._-]+")
+
+
+def _slugify(value: str, fallback: str = "qr") -> str:
+    text = (value or "").strip()
+    text = text.replace("https://", "").replace("http://", "")
+    text = _SLUG_RE.sub("-", text).strip("-_.")
+    text = text[:48]
+    return text or fallback
+
+
+def _parse_rows(text: str, csv_mode: bool) -> list[dict[str, str]]:
+    rows: list[dict[str, str]] = []
+    raw = (text or "").replace("\r\n", "\n").replace("\r", "\n")
+    lines = [ln for ln in raw.split("\n")]
+    if csv_mode:
+        reader = csv_mod.reader(lines)
+        for cells in reader:
+            if not cells:
+                continue
+            payload = (cells[0] or "").strip()
+            if not payload:
+                continue
+            name = (cells[1].strip() if len(cells) > 1 and cells[1] else "")
+            rows.append({"payload": payload, "name": name})
+    else:
+        for ln in lines:
+            payload = ln.strip()
+            if payload:
+                rows.append({"payload": payload, "name": ""})
+    return rows[:MAX_ROWS]
+
+
+def render_qr_png_bytes(payload: str, ecc: str, size: int, border: int) -> bytes:
+    ecc_key = str(ecc or "M").strip().upper()
+    if ecc_key not in ECC_MAP:
+        ecc_key = "M"
+    size = max(128, min(2048, int(size or 512)))
+    border = max(1, min(16, int(border or 2)))
+    qr = qrcode.QRCode(
+        version=None,
+        error_correction=ECC_MAP[ecc_key],
+        box_size=10,
+        border=border,
+    )
+    qr.add_data(payload)
+    qr.make(fit=True)
+    img: PilImage = qr.make_image(fill_color="black", back_color="white")
+    img = img.convert("RGB").resize((size, size))
+    buf = io.BytesIO()
+    img.save(buf, format="PNG")
+    return buf.getvalue()
+
+
 class Api(WindowChromeMixin):
-    """JS bridge — © 2026 Mr-Aurevo-X · QrMake · all rights reserved."""
+    """JS bridge — © 2026 Mr-Aurevo-X · QrTools · all rights reserved."""
 
     def __init__(self) -> None:
         self._window = None
@@ -362,22 +419,22 @@ class Api(WindowChromeMixin):
     def get_version(self) -> dict:
         return {
             "ok": True,
-            "version": qrmake_updater.read_local_version(),
-            "repo": qrmake_updater.RELEASE_REPO,
+            "version": QrTools_updater.read_local_version(),
+            "repo": QrTools_updater.RELEASE_REPO,
         }
 
     def check_for_update(self) -> dict:
-        return qrmake_updater.check_for_update()
+        return QrTools_updater.check_for_update()
 
     def apply_update(self) -> dict:
         # Bat-only: refresh sources (git pull / zip). User relaunches via Lancer.bat.
-        return qrmake_updater.apply_update()
+        return QrTools_updater.apply_update()
 
     def dismiss_update(self, version: str | None = None) -> dict:
-        return qrmake_updater.dismiss_update(version)
+        return QrTools_updater.dismiss_update(version)
 
     def set_auto_update(self, enabled: bool = False) -> dict:
-        return qrmake_updater.set_auto_update(bool(enabled))
+        return QrTools_updater.set_auto_update(bool(enabled))
 
     def build_payload(self, mode: str = "text", fields: dict | None = None) -> dict:
         return build_payload(mode, fields)
@@ -417,10 +474,10 @@ class Api(WindowChromeMixin):
             "version": rendered.get("version"),
         }
 
-    def save_png(self, suggested_name: str = "qrmake.png") -> dict:
+    def save_png(self, suggested_name: str = "QrTools.png") -> dict:
         if not self._last_png:
             return {"ok": False, "error": "No QR generated yet"}
-        name = (suggested_name or "qrmake.png").strip() or "qrmake.png"
+        name = (suggested_name or "QrTools.png").strip() or "QrTools.png"
         if not name.lower().endswith(".png"):
             name += ".png"
         try:
@@ -444,7 +501,7 @@ class Api(WindowChromeMixin):
             return {"ok": False, "error": str(exc)}
 
     def copy_image(self) -> dict:
-        # © 2026 Mr-Aurevo-X · QrMake · clipboard image helper
+        # © 2026 Mr-Aurevo-X · QrTools · clipboard image helper
         if not self._last_png:
             return {"ok": False, "error": "No QR generated yet"}
         try:
@@ -485,13 +542,13 @@ class Api(WindowChromeMixin):
                 return {"ok": False, "error": str(exc)}
 
     def print_image(self) -> dict:
-        # © 2026 Mr-Aurevo-X · QrMake · direct print via Windows shell
+        # © 2026 Mr-Aurevo-X · QrTools · direct print via Windows shell
         if not self._last_png:
             return {"ok": False, "error": "No QR generated yet"}
         try:
             import tempfile
 
-            fd, tmp = tempfile.mkstemp(prefix="qrmake_", suffix=".png")
+            fd, tmp = tempfile.mkstemp(prefix="QrTools_", suffix=".png")
             os.close(fd)
             path = Path(tmp)
             path.write_bytes(self._last_png)
@@ -504,6 +561,148 @@ class Api(WindowChromeMixin):
     def copy_payload(self, text: str | None = None) -> dict:
         payload = text if text is not None else self._last_payload
         return self.copy_text(payload or "")
+
+    # ---- batch (Lot) -------------------------------------------------
+
+    def import_file(self) -> dict:
+        try:
+            paths = None
+            if self._window is not None:
+                paths = self._window.create_file_dialog(
+                    webview.OPEN_DIALOG,
+                    allow_multiple=False,
+                    file_types=("Listes (*.csv;*.txt)", "Tous les fichiers (*.*)"),
+                )
+            if not paths:
+                return {"ok": False, "error": "cancelled"}
+            path = paths[0] if isinstance(paths, (list, tuple)) else paths
+            data = Path(path).read_bytes()
+            for enc in ("utf-8-sig", "utf-8", "cp1252", "latin-1"):
+                try:
+                    text = data.decode(enc)
+                    break
+                except UnicodeDecodeError:
+                    text = data.decode("utf-8", errors="replace")
+            return {"ok": True, "text": text, "name": Path(path).name}
+        except Exception as exc:
+            return {"ok": False, "error": str(exc)}
+
+    def preview(
+        self,
+        text: str = "",
+        ecc: str = "M",
+        size: int = 512,
+        border: int = 2,
+        csv_mode: bool = False,
+    ) -> dict:
+        rows = _parse_rows(text, bool(csv_mode))
+        count = len(rows)
+        preview_url = None
+        if count:
+            try:
+                png = render_qr_png_bytes(
+                    rows[0]["payload"], ecc, min(int(size or 512), 512), border
+                )
+                preview_url = "data:image/png;base64," + base64.b64encode(png).decode("ascii")
+            except Exception:
+                preview_url = None
+        sample = [r["payload"] for r in rows[:5]]
+        return {
+            "ok": True,
+            "count": count,
+            "truncated": count >= MAX_ROWS,
+            "sample": sample,
+            "previewUrl": preview_url,
+        }
+
+    def generate_batch(
+        self,
+        text: str = "",
+        ecc: str = "M",
+        size: int = 512,
+        border: int = 2,
+        csv_mode: bool = False,
+        make_zip: bool = False,
+    ) -> dict:
+        rows = _parse_rows(text, bool(csv_mode))
+        if not rows:
+            return {"ok": False, "error": "empty"}
+
+        folder = None
+        try:
+            if self._window is not None:
+                folder = self._window.create_file_dialog(
+                    webview.FOLDER_DIALOG,
+                    directory=str(Path.home() / "Downloads"),
+                )
+        except Exception as exc:
+            return {"ok": False, "error": str(exc)}
+        if not folder:
+            return {"ok": False, "error": "cancelled"}
+        out_dir = Path(folder[0] if isinstance(folder, (list, tuple)) else folder)
+        batch_dir = out_dir / "QrTools"
+        i = 2
+        while batch_dir.exists():
+            batch_dir = out_dir / f"QrTools_{i}"
+            i += 1
+        batch_dir.mkdir(parents=True, exist_ok=True)
+
+        pad = max(3, len(str(len(rows))))
+        used: set[str] = set()
+        written: list[Path] = []
+        failures: list[dict] = []
+
+        for idx, row in enumerate(rows, start=1):
+            payload = row["payload"]
+            base = row["name"].strip() if row.get("name") else ""
+            if base:
+                stem = _slugify(base, f"qr-{idx:0{pad}d}")
+            else:
+                stem = f"{idx:0{pad}d}_{_slugify(payload, f'qr-{idx:0{pad}d}')}"
+            name = f"{stem}.png"
+            n = 2
+            while name.lower() in used:
+                name = f"{stem}_{n}.png"
+                n += 1
+            used.add(name.lower())
+            try:
+                png = render_qr_png_bytes(payload, ecc, size, border)
+                (batch_dir / name).write_bytes(png)
+                written.append(batch_dir / name)
+            except Exception as exc:
+                failures.append({"row": idx, "payload": payload[:80], "error": str(exc)})
+
+        zip_path = None
+        if make_zip and written:
+            zip_path = batch_dir.with_suffix(".zip")
+            try:
+                with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zf:
+                    for p in written:
+                        zf.write(p, arcname=p.name)
+            except Exception as exc:
+                failures.append({"row": 0, "payload": "(zip)", "error": str(exc)})
+                zip_path = None
+
+        return {
+            "ok": True,
+            "count": len(written),
+            "total": len(rows),
+            "folder": str(batch_dir),
+            "zipPath": str(zip_path) if zip_path else None,
+            "failures": failures,
+            "ecc": str(ecc or "M").upper(),
+            "size": int(size or 512),
+        }
+
+    def reveal(self, path: str) -> dict:
+        try:
+            target = Path(path)
+            if target.exists():
+                os.startfile(str(target if target.is_dir() else target.parent))  # noqa: S606
+                return {"ok": True}
+            return {"ok": False, "error": "not_found"}
+        except Exception as exc:
+            return {"ok": False, "error": str(exc)}
 
     def copy_text(self, text: str) -> dict:
         text = text if isinstance(text, str) else str(text or "")
@@ -522,14 +721,14 @@ class Api(WindowChromeMixin):
 
 
 def main() -> None:
-    # © 2026 Mr-Aurevo-X · QrMake · windowed host entry
+    # © 2026 Mr-Aurevo-X · QrTools · windowed host entry
     ui = ui_dir()
     index = ui / "index.html"
     if not index.is_file():
         raise SystemExit(f"UI missing: {index}")
     api = Api()
     create_tool_window(
-        title="QrMake — Mr-Aurevo-X",
+        title="QrTools — Mr-Aurevo-X",
         url=index.as_uri(),
         js_api=api,
         width=1180,
@@ -541,5 +740,5 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    # © 2026 Mr-Aurevo-X · QrMake · 100% local · free · updates not guaranteed
+    # © 2026 Mr-Aurevo-X · QrTools · 100% local · free · updates not guaranteed
     main()

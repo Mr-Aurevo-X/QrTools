@@ -1,17 +1,17 @@
 /**
- * QrMake — UI (proprietary)
- * © 2026 Mr-Aurevo-X · QrMake · 100% local · free · updates not guaranteed
+ * QrTools — UI (proprietary)
+ * © 2026 Mr-Aurevo-X · QrTools · 100% local · free · updates not guaranteed
  * All rights reserved. Do not strip copyright notices.
  */
 (() => {
   "use strict";
-  // © 2026 Mr-Aurevo-X · QrMake · 100% local · free · updates not guaranteed
+  // © 2026 Mr-Aurevo-X · QrTools · 100% local · free · updates not guaranteed
 
   const SUITE_I18N = {
     fr: {
       tagline: "QR · multi-payloads",
       copyright: "Copyright © 2026 Mr-Aurevo-X — tous droits réservés",
-      title: "QrMake",
+      title: "QrTools",
       subtitle: "Aperçu live · ECC · PNG",
       featuresTitle: "Fonctions",
       features:
@@ -22,7 +22,7 @@
       legalFree: "100 % gratuit",
       legalLocal: "100 % local — aucun cloud, aucune télémétrie",
       legalUpdates: "Mise à jour non garantie — vérif. optionnelle GitHub",
-      aboutTitle: "À propos — QrMake",
+      aboutTitle: "À propos — QrTools",
       aboutBody:
         "Générateur de QR codes Mr-Aurevo-X. 100 % gratuit, 100 % local. Mise à jour non garantie (pas d’obligation). L’app peut vérifier GitHub Releases et proposer une mise à jour des sources (git pull / zip).",
       aboutRights:
@@ -98,7 +98,7 @@
     en: {
       tagline: "QR · multi-payloads",
       copyright: "Copyright © 2026 Mr-Aurevo-X — all rights reserved",
-      title: "QrMake",
+      title: "QrTools",
       subtitle: "Live preview · ECC · PNG",
       featuresTitle: "Features",
       features:
@@ -109,7 +109,7 @@
       legalFree: "100% free",
       legalLocal: "100% local — no cloud, no telemetry",
       legalUpdates: "Updates not guaranteed — optional GitHub check",
-      aboutTitle: "About — QrMake",
+      aboutTitle: "About — QrTools",
       aboutBody:
         "Mr-Aurevo-X QR generator. 100% free, 100% local. Updates not guaranteed (no obligation). The app can check GitHub Releases and offer a source update (git pull / zip).",
       aboutRights:
@@ -187,7 +187,7 @@
   let suiteLang = "fr";
   const t = (key) => (SUITE_I18N[suiteLang] && SUITE_I18N[suiteLang][key]) || SUITE_I18N.fr[key] || key;
 
-  // © 2026 Mr-Aurevo-X · QrMake · provenance marker
+  // © 2026 Mr-Aurevo-X · QrTools · provenance marker
   const MODES = [
     { id: "text", key: "modeText" },
     { id: "url", key: "modeUrl" },
@@ -210,7 +210,7 @@
     border: 2,
     hidePw: true,
     fields: {
-      text: "QrMake — Mr-Aurevo-X",
+      text: "QrTools — Mr-Aurevo-X",
       url: "https://github.com/Mr-Aurevo-X",
       ssid: "",
       password: "",
@@ -287,6 +287,8 @@
           const s = await api.get_suite_settings();
           if (s && s.accent) applyAccent(s.accent);
           if (s && s.language === "en") suiteLang = "en";
+          if (window.QrToolsTabs) window.QrToolsTabs.setLanguage(suiteLang);
+          if (window.QrToolsBatch) window.QrToolsBatch.setLanguage(suiteLang);
         } catch (_) {}
       }
       return suiteLang;
@@ -295,6 +297,8 @@
     suiteLang = settings.language === "en" ? "en" : "fr";
     suite.applyAccent(settings.accent);
     suite.applyI18n(suiteLang, SUITE_I18N);
+    if (window.QrToolsTabs) window.QrToolsTabs.setLanguage(suiteLang);
+    if (window.QrToolsBatch) window.QrToolsBatch.setLanguage(suiteLang);
     return suiteLang;
   }
 
@@ -393,7 +397,7 @@
     });
   }
 
-  // © 2026 Mr-Aurevo-X · QrMake · mode controls
+  // © 2026 Mr-Aurevo-X · QrTools · mode controls
   function renderControls() {
     el.controls.innerHTML = "";
     const grid = document.createElement("div");
@@ -569,7 +573,7 @@
     const api = await apiReady();
     if (!api || !api.save_png) return;
     try {
-      const res = await api.save_png("qrmake.png");
+      const res = await api.save_png("QrTools.png");
       if (res && res.ok) setStatus(t("saved") + (res.path ? " — " + res.path : ""));
       else if (res && res.error === "cancelled") setStatus(t("cancelled"));
       else setStatus((res && res.error) || t("fail"));

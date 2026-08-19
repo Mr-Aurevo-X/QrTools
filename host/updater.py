@@ -1,10 +1,10 @@
-"""Optional GitHub updater for QrMake.
+"""Optional GitHub updater for QrTools.
 
 Legal: updates are not guaranteed (no SLA). Frozen/exe mode prefers the
-GitHub Release asset QrMake.exe; source mode uses git pull (clone) or the
+GitHub Release asset QrTools.exe; source mode uses git pull (clone) or the
 release source zipball. Sole optional network call.
 """
-# © 2026 Mr-Aurevo-X · QrMake · 100% local · free · updates not guaranteed
+# © 2026 Mr-Aurevo-X · QrTools · 100% local · free · updates not guaranteed
 from __future__ import annotations
 
 import json
@@ -20,12 +20,12 @@ import zipfile
 from pathlib import Path
 from typing import Any
 
-RELEASE_REPO = "Mr-Aurevo-X/QrMake"
+RELEASE_REPO = "Mr-Aurevo-X/QrTools"
 API_LATEST = f"https://api.github.com/repos/{RELEASE_REPO}/releases/latest"
-USER_AGENT = "QrMake-Updater/1.0 (+https://github.com/Mr-Aurevo-X/QrMake)"
-EXE_NAME = "QrMake.exe"
+USER_AGENT = "QrTools-Updater/1.0 (+https://github.com/Mr-Aurevo-X/QrTools)"
+EXE_NAME = "QrTools.exe"
 VERSION_NAME = "VERSION"
-SETTINGS_NAME = "qrmake-settings.json"
+SETTINGS_NAME = "QrTools-settings.json"
 
 # Paths refreshed from a source zip (never wipe .venv / local exe leftovers)
 REFRESH_TOP = (
@@ -34,7 +34,7 @@ REFRESH_TOP = (
     "VERSION",
     "requirements.txt",
     "Lancer.bat",
-    "QrMake.bat",
+    "QrTools.bat",
     "Lancer.cmd",
     "README.md",
     "LICENSE",
@@ -303,7 +303,7 @@ def _extract_exe_from_zip(zip_path: Path, dest_exe: Path) -> None:
 
 def _write_finish_script(target_exe: Path, staged_exe: Path, version: str) -> Path:
     """Batch that waits for this process to exit, replaces exe, writes VERSION, relaunches."""
-    script = target_exe.parent / "_qrmake_update_finish.cmd"
+    script = target_exe.parent / "_QrTools_update_finish.cmd"
     pid = os.getpid()
     lines = [
         "@echo off",
@@ -366,7 +366,7 @@ def _apply_via_git_pull(remote: str) -> dict[str, Any]:
         "newLocal": read_local_version(root),
         "method": "git_pull",
         "error": None,
-        "note": "Sources mises a jour via git pull — relancez QrMake.exe ou Lancer.bat",
+        "note": "Sources mises a jour via git pull — relancez QrTools.exe ou Lancer.bat",
     }
 
 
@@ -400,7 +400,7 @@ def _apply_via_source_zip(release: dict, remote: str) -> dict[str, Any]:
             "method": "source_zip",
         }
 
-    tmp_dir = Path(tempfile.mkdtemp(prefix="qrmake-src-"))
+    tmp_dir = Path(tempfile.mkdtemp(prefix="QrTools-src-"))
     try:
         zip_path = tmp_dir / "source.zip"
         zip_path.write_bytes(_http_get(zip_url, accept="application/vnd.github+json"))
@@ -428,7 +428,7 @@ def _apply_via_source_zip(release: dict, remote: str) -> dict[str, Any]:
             "newLocal": read_local_version(root),
             "method": "source_zip",
             "error": None,
-            "note": "Sources rafraichies depuis GitHub — relancez QrMake.exe ou Lancer.bat",
+            "note": "Sources rafraichies depuis GitHub — relancez QrTools.exe ou Lancer.bat",
         }
     except Exception as exc:  # noqa: BLE001
         return {
@@ -444,7 +444,7 @@ def _apply_via_source_zip(release: dict, remote: str) -> dict[str, Any]:
 
 
 def _apply_via_exe_asset(release: dict, remote: str) -> dict[str, Any]:
-    """Download QrMake.exe (or zip containing it) and schedule replace when frozen."""
+    """Download QrTools.exe (or zip containing it) and schedule replace when frozen."""
     local = read_local_version()
     asset = _pick_asset(release)
     if not asset:
@@ -462,7 +462,7 @@ def _apply_via_exe_asset(release: dict, remote: str) -> dict[str, Any]:
     target_exe = Path(sys.executable).resolve() if is_frozen() else root / EXE_NAME
 
     try:
-        tmp_dir = Path(tempfile.mkdtemp(prefix="qrmake-upd-"))
+        tmp_dir = Path(tempfile.mkdtemp(prefix="QrTools-upd-"))
         staged = tmp_dir / EXE_NAME
         if asset_name.lower().endswith(".zip"):
             zip_path = tmp_dir / "release.zip"
@@ -508,7 +508,7 @@ def _apply_via_exe_asset(release: dict, remote: str) -> dict[str, Any]:
             "path": str(target_exe),
             "method": "exe_asset",
             "error": None,
-            "note": "QrMake.exe mis a jour — relancez via QrMake.exe ou Lancer.bat",
+            "note": "QrTools.exe mis a jour — relancez via QrTools.exe ou Lancer.bat",
         }
     except Exception as exc:  # noqa: BLE001
         return {
@@ -522,7 +522,7 @@ def _apply_via_exe_asset(release: dict, remote: str) -> dict[str, Any]:
 
 
 def apply_update() -> dict[str, Any]:
-    """Frozen: prefer Release asset QrMake.exe. Source: git pull or zipball."""
+    """Frozen: prefer Release asset QrTools.exe. Source: git pull or zipball."""
     local = read_local_version()
     try:
         raw = _http_get(API_LATEST)

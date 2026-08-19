@@ -1,4 +1,4 @@
-# UI proprietaire — PC Command design kit
+# 02_Shared_Infrastructure\UI-proprietaire — PC Command design kit
 
 Source of truth for the Mr-Aurevo-X / L'Atelier Windows visual system.
 
@@ -49,7 +49,7 @@ Then hub `.\scripts\Sync-All-UiKit.ps1` to fan-out vendors.
 
 ## Dev vs release
 
-- **Dev:** apps may resolve sibling `..\..\UI proprietaire\` (or env `PC_COMMAND_KIT`).
+- **Dev:** apps may resolve sibling `..\..\02_Shared_Infrastructure\UI-proprietaire\` (or env `PC_COMMAND_KIT`).
 - **Release:** always a real directory copy under `ui/vendor/pc-command-kit` (no reparse points).
 
 ## Notes

@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <!-- © 2026 Mr-Aurevo-X · QrMake · 100% local · free · updates not guaranteed -->
+  <!-- © 2026 Mr-Aurevo-X · QrTools · 100% local · free · updates not guaranteed -->
   <meta name="author" content="Mr-Aurevo-X" />
   <meta name="copyright" content="Copyright © 2026 Mr-Aurevo-X. All rights reserved." />
-  <title>QrMake — Mr-Aurevo-X</title>
+  <title>QrTools — Mr-Aurevo-X</title>
   <link rel="stylesheet" href="vendor/pc-command-kit/tokens/kit.css" />
   <link rel="stylesheet" href="vendor/pc-command-kit/components/embed.css" />
   <link rel="stylesheet" href="fonts/fonts.css" />
@@ -27,14 +27,14 @@
     })();
   </script>
 </head>
-<body data-tool-title="QrMake">
+<body data-tool-title="QrTools">
   <header class="pcd-nav" id="hubTitlebar">
     <div class="brand pywebview-drag-region" title="Mr-Aurevo-X" id="hubBrand">
       <span class="mark" aria-hidden="true">MX</span>
       <strong class="brand-title">
         <span class="brand-atelier">Mr-Aurevo-X</span>
       </strong>
-      <span class="hub-tool-name">QrMake</span>
+      <span class="hub-tool-name">QrTools</span>
     </div>
     <div class="nav-spacer pywebview-drag-region" aria-hidden="true"></div>
     <div class="nav-right">
@@ -50,7 +50,7 @@
     <aside class="sidebar">
       <div class="brand">
         <!-- inline SVG: WebView2 file:// breaks external img under paths with apostrophe -->
-        <svg class="brand-mark" width="40" height="40" viewBox="0 0 64 64" role="img" aria-label="QrMake" xmlns="http://www.w3.org/2000/svg">
+        <svg class="brand-mark" width="40" height="40" viewBox="0 0 64 64" role="img" aria-label="QrTools" xmlns="http://www.w3.org/2000/svg">
           <rect width="64" height="64" rx="14" fill="#0b0b0d"/>
           <rect x="10" y="10" width="18" height="18" rx="3" fill="#e03545"/>
           <rect x="14" y="14" width="10" height="10" rx="1.5" fill="#0b0b0d"/>
@@ -67,7 +67,7 @@
           <rect x="48" y="52" width="6" height="2" fill="#e03545"/>
         </svg>
         <div class="brand-text">
-          <h1>QrMake</h1>
+          <h1>QrTools</h1>
           <p data-i18n="tagline">QR · multi-payloads</p>
         </div>
       </div>
@@ -95,7 +95,7 @@
 
     <div class="main">
       <header class="page-header">
-        <h2 data-i18n="title">QrMake</h2>
+        <h2 data-i18n="title">QrTools</h2>
         <p id="meta" data-i18n="subtitle">Aperçu live · ECC · PNG</p>
       </header>
 
@@ -110,6 +110,12 @@
         </div>
       </div>
 
+      <div class="top-mode-tabs" id="topModeTabs" role="tablist">
+        <button type="button" class="top-mode-tab active" data-top-mode="simple" data-i18n="tabSimple">Simple</button>
+        <button type="button" class="top-mode-tab" data-top-mode="batch" data-i18n="tabBatch">Lot</button>
+      </div>
+
+      <section class="top-panel" id="panel-simple">
       <div class="mode-tabs" id="modeTabs" role="tablist"></div>
 
       <div class="workspace">
@@ -135,12 +141,79 @@
       </div>
 
       <p class="status" id="status"></p>
+      </section>
+
+      <section class="top-panel" id="panel-batch" hidden>
+        <div class="batch-grid">
+          <section class="panel input-panel">
+            <div class="panel-head">
+              <label class="panel-title" for="inputText" data-i18n="inputTitle">Entrées (une par ligne)</label>
+              <div class="head-actions">
+                <button type="button" class="btn small" id="btnImport" data-i18n="btnImport">Importer CSV/TXT</button>
+                <button type="button" class="btn ghost small" id="btnClearInput" data-i18n="btnClearInput">Vider</button>
+              </div>
+            </div>
+            <textarea id="inputText" spellcheck="false" placeholder="https://exemple.com/1&#10;https://exemple.com/2&#10;WIFI:T:WPA;S:MonReseau;P:motdepasse;;&#10;Texte libre…"></textarea>
+            <label class="check">
+              <input type="checkbox" id="csvMode" />
+              <span data-i18n="csvMode">Mode CSV — colonne 1 = contenu, colonne 2 = nom de fichier</span>
+            </label>
+          </section>
+
+          <section class="panel options-panel">
+            <div class="preview-box">
+              <img id="previewImg" alt="" hidden />
+              <div class="preview-empty" id="previewEmpty" data-i18n="previewEmpty">Aperçu du 1ᵉʳ QR</div>
+            </div>
+            <div class="count-line" id="countLine" data-i18n="countZero">0 entrée</div>
+
+            <label class="field">
+              <span data-i18n="optEcc">Correction d'erreur (ECC)</span>
+              <select id="optEcc">
+                <option value="L">L — 7 %</option>
+                <option value="M" selected>M — 15 %</option>
+                <option value="Q">Q — 25 %</option>
+                <option value="H">H — 30 %</option>
+              </select>
+            </label>
+            <label class="field">
+              <span data-i18n="optSize">Taille (px)</span>
+              <select id="optSize">
+                <option value="128">128</option>
+                <option value="256">256</option>
+                <option value="512" selected>512</option>
+                <option value="768">768</option>
+                <option value="1024">1024</option>
+                <option value="1536">1536</option>
+                <option value="2048">2048</option>
+              </select>
+            </label>
+            <label class="field">
+              <span data-i18n="optBorder">Marge (modules)</span>
+              <input type="number" id="optBorder" min="1" max="16" value="2" />
+            </label>
+            <label class="check">
+              <input type="checkbox" id="makeZip" />
+              <span data-i18n="makeZip">Créer aussi une archive ZIP</span>
+            </label>
+
+            <button type="button" class="btn accent generate" id="btnGenerateBatch" data-i18n="btnGenerateBatch">Générer le lot…</button>
+          </section>
+        </div>
+
+        <div class="result-card" id="resultCard" hidden>
+          <div class="result-text" id="resultText"></div>
+          <button type="button" class="btn small" id="btnOpenFolder" data-i18n="btnOpenFolder">Ouvrir le dossier</button>
+        </div>
+
+        <p class="status" id="statusBatch"></p>
+      </section>
     </div>
   </div>
 
   <dialog class="about-dialog" id="aboutDialog">
     <form method="dialog" class="about-card">
-      <h3 data-i18n="aboutTitle">À propos — QrMake</h3>
+      <h3 data-i18n="aboutTitle">À propos — QrTools</h3>
       <p data-i18n="aboutBody">Générateur de QR codes Mr-Aurevo-X. 100 % gratuit, 100 % local. Mise à jour non garantie (pas d’obligation). L’app peut vérifier GitHub Releases et proposer une mise à jour des sources (git pull / zip).</p>
       <ul>
         <li data-i18n="legalFree">100 % gratuit</li>
@@ -155,6 +228,8 @@
 
   <script src="hub-chrome.js"></script>
   <script src="suite-boot.js"></script>
+  <script src="app-tabs.js"></script>
+  <script src="app-batch.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

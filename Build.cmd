@@ -1,17 +1,17 @@
 @echo off
-REM ? 2026 Mr-Aurevo-X ? QrMake ? 100% local ? free ? updates not guaranteed
+REM ? 2026 Mr-Aurevo-X ? QrTools ? 100% local ? free ? updates not guaranteed
 cd /d "%~dp0"
-if exist "%~dp0ui\vendor\pc-command-kit\" if exist "..\..\UI proprietaire\scripts\sync-ui-kit.ps1" (
-  powershell -NoProfile -ExecutionPolicy Bypass -File "..\..\UI proprietaire\scripts\sync-ui-kit.ps1" -Target "%~dp0ui\vendor\pc-command-kit" -KitRoot "..\..\UI proprietaire"
+if exist "%~dp0ui\vendor\pc-command-kit\" if exist "..\..\02_Shared_Infrastructure\UI-proprietaire\scripts\sync-ui-kit.ps1" (
+  powershell -NoProfile -ExecutionPolicy Bypass -File "..\..\02_Shared_Infrastructure\UI-proprietaire\scripts\sync-ui-kit.ps1" -Target "%~dp0ui\vendor\pc-command-kit" -KitRoot "..\..\02_Shared_Infrastructure\UI-proprietaire"
 )
 if exist "%~dp0.venv\Scripts\python.exe" (
-  "%~dp0.venv\Scripts\python.exe" -m PyInstaller --noconfirm --clean QrMake.spec
+  "%~dp0.venv\Scripts\python.exe" -m PyInstaller --noconfirm --clean QrTools.spec
 ) else (
-  python -m PyInstaller --noconfirm --clean QrMake.spec
+  python -m PyInstaller --noconfirm --clean QrTools.spec
 )
-if exist "dist\QrMake.exe" (
-  copy /Y "dist\QrMake.exe" "QrMake.exe" >nul
-  echo OK: QrMake.exe
+if exist "dist\QrTools.exe" (
+  copy /Y "dist\QrTools.exe" "QrTools.exe" >nul
+  echo OK: QrTools.exe
 ) else (
   echo Build failed.
   exit /b 1
