@@ -9,6 +9,13 @@
 Générateur de QR codes multi-payloads — 100 % local, 100 % gratuit.  
 Multi-payload QR generator — 100% local, 100% free.
 
+
+## Capture d'écran / Screenshot
+
+Void Glow UI (kit pc-command) — chrome outil, sans Accueil hub.
+
+![ QrTools Void Glow ](docs/screenshots/ui-void-glow.png)
+
 ## Download / Téléchargement
 
 - **One-click:** [QrTools.exe](https://github.com/Mr-Aurevo-X/QrTools/releases/latest/download/QrTools.exe)
