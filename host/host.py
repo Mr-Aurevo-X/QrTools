@@ -473,6 +473,9 @@ class Api(WindowChromeMixin):
     def get_update_prefs(self) -> dict:
         return QrTools_updater.get_update_prefs()
 
+    def get_about_local_paths(self) -> dict:
+        return QrTools_updater.about_local_paths()
+
     def build_payload(self, mode: str = "text", fields: dict | None = None) -> dict:
         return build_payload(mode, fields)
 
