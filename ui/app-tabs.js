@@ -19,7 +19,7 @@
       featuresSimple:
         "Texte, URL, Wi‑Fi, contact, email, tel, SMS, geo, événement, WhatsApp, brut — aperçu live, PNG, impression locale.",
       featuresBatch:
-        "Une entrée par ligne (ou CSV) → un QR par ligne. ECC/taille partagés. Export dossier PNG + ZIP optionnel. 100 % local.",
+        "Une entrée par ligne (ou CSV) → un QR par ligne. ECC/taille partagés. Export dossier PNG + ZIP optionnel. 100% local.",
     },
     en: {
       tabSimple: "Simple",

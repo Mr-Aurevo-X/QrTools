@@ -157,6 +157,16 @@ select optgroup {
   flex-wrap: wrap;
   gap: 8px;
 }
+.status {
+  margin: 10px 0 0;
+  font-size: 0.85rem;
+  color: var(--muted, rgba(255, 255, 255, 0.55));
+  min-height: 1.2em;
+}
+.status.is-ready {
+  color: #3dd68c;
+  font-weight: 600;
+}
 .range-val {
   color: #fff;
   font-variant-numeric: tabular-nums;

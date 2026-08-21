@@ -21,15 +21,16 @@
       featuresTitle: "Fonctions",
       features:
         "Texte, URL, Wi‑Fi, contact, email, tel, SMS, geo, événement, WhatsApp, brut — aperçu live, PNG local.",
-      privacy:
-        "Mr-Aurevo-X ne collecte aucune donnée. Génération QR 100 % locale. Seul appel réseau optionnel : vérif. de version GitHub Releases (désactivable dans À propos).",
-      badgeFree: "100 % gratuit",
-      legalFree: "100 % gratuit",
-      legalLocal: "100 % local — aucun cloud, aucune télémétrie",
-      legalUpdates: "100 % local sauf vérif. optionnelle GitHub Releases (désactivable)",
+      privacy: "Détail légal, chemins locaux et options réseau : À propos.",
+      badgeFree: "100% gratuit",
+      legalFree: "100% gratuit",
+      legalLocal:
+        "100% sans télémétrie — seule connexion : vérif. versions",
+      legalUpdates:
+        "100% sans télémétrie — seule connexion : vérif. versions",
       aboutTitle: "À propos — QrTools",
       aboutBody:
-        "Générateur de QR codes Mr-Aurevo-X. 100 % gratuit, 100 % local. Mise à jour non garantie (pas d’obligation). L’app peut vérifier GitHub Releases et proposer une mise à jour des sources (git pull / zip).",
+        "Générateur de QR codes Mr-Aurevo-X. 100% gratuit, 100% local. Mise à jour non garantie (pas d’obligation). L’app peut vérifier GitHub Releases et proposer une mise à jour des sources (git pull / zip).",
       aboutRights:
         "Redistribution, reverse engineering ou suppression du copyright interdits sans accord écrit.",
       btnAbout: "À propos",
@@ -38,9 +39,10 @@
       aboutCopied: "Lien copié.",
 
       langSwitchAria: "Langue",
+      supportNote: "Si le boulot te plaît, un café — sinon profite.",
       aboutToggle: "Vérifier les nouvelles versions sur GitHub",
       aboutHintOn: "Quand activé : un appel API GitHub au démarrage (lecture seule, pas de téléchargement).",
-      aboutHintOff: "Désactivé : aucune requête GitHub. 100 % local hors actions utilisateur.",
+      aboutHintOff: "Désactivé : aucune requête GitHub. 100% local hors actions utilisateur.",
       aboutVersion: "Version {ver}",
       aboutLegalTerms: "CGU",
       aboutLegalPrivacy: "Confidentialité",
@@ -53,7 +55,7 @@
       btnCopyPath: "Copier",
       btnDisableUpdateCheck: "Désactiver la vérif. GitHub",
       btnEnableUpdateCheck: "Réactiver la vérif. GitHub",
-      aboutNetNote: "100 % local — seule connexion hors machine optionnelle : vérif. de version GitHub Releases.",
+      aboutNetNote: "100% local — seule connexion hors machine optionnelle : vérif. de version GitHub Releases.",
       btnClose: "Fermer",
       updateTitle: "Nouvelle version disponible",
       updateDetail: "v{local} → v{remote}",
@@ -129,12 +131,13 @@
       featuresTitle: "Features",
       features:
         "Text, URL, Wi‑Fi, contact, email, tel, SMS, geo, event, WhatsApp, raw — live preview, local PNG.",
-      privacy:
-        "Mr-Aurevo-X does not collect your data. 100% local QR generation. Only optional network call: GitHub Releases version check (disable in About).",
+      privacy: "Legal details, local paths and network options: About.",
       badgeFree: "100% free",
       legalFree: "100% free",
-      legalLocal: "100% local — no cloud, no telemetry",
-      legalUpdates: "100% local except optional GitHub Releases check (can disable)",
+      legalLocal:
+        "100% no telemetry — only network: version check",
+      legalUpdates:
+        "100% no telemetry — only network: version check",
       aboutTitle: "About — QrTools",
       aboutBody:
         "Mr-Aurevo-X QR generator. 100% free, 100% local. Updates not guaranteed (no obligation). The app can check GitHub Releases and offer a source update (git pull / zip).",
@@ -146,6 +149,7 @@
       aboutCopied: "Link copied.",
 
       langSwitchAria: "Language",
+      supportNote: "If you like the work, a coffee — otherwise enjoy.",
       aboutToggle: "Check for new versions on GitHub",
       aboutHintOn: "When on: one GitHub API call at startup (read-only, no download).",
       aboutHintOff: "Off: no GitHub requests. 100% local except user actions.",
@@ -358,7 +362,13 @@
   }
 
   function setStatus(msg) {
-    el.status.textContent = msg || "";
+    if (!el.status) return;
+    const text = msg || "";
+    el.status.textContent = text;
+    const readyFr = SUITE_I18N.fr.ready;
+    const readyEn = SUITE_I18N.en.ready;
+    const isReady = !!text && (text === t("ready") || text === readyFr || text === readyEn);
+    el.status.classList.toggle("is-ready", isReady);
   }
 
   function scheduleGenerate() {
@@ -813,12 +823,30 @@
     try { if (typeof state !== "undefined" && state) state.lang = next; } catch (_) {}
     document.documentElement.lang = next;
     syncLangSwitch(next);
-    if (typeof applyI18n === "function") applyI18n();
-    else if (window.suite && typeof window.suite.applyI18n === "function" && typeof SUITE_I18N !== "undefined") {
-      window.suite.applyI18n(next, SUITE_I18N);
+    const suiteApi = window.MrAurevoXSuite || window.suite;
+    if (suiteApi && typeof suiteApi.applyI18n === "function" && typeof SUITE_I18N !== "undefined") {
+      suiteApi.applyI18n(next, SUITE_I18N);
     }
     if (typeof refreshLabels === "function") refreshLabels();
     if (typeof applyLabels === "function") applyLabels();
+    if (typeof refreshChromeLabels === "function") refreshChromeLabels();
+    try {
+      if (window.QrToolsTabs) window.QrToolsTabs.setLanguage(next);
+      if (window.QrToolsBatch) window.QrToolsBatch.setLanguage(next);
+      if (typeof renderModes === "function") renderModes();
+      if (typeof renderControls === "function") renderControls();
+      if (typeof renderShared === "function") renderShared();
+    } catch (_) {}
+    try {
+      const cur = el.status ? String(el.status.textContent || "").trim() : "";
+      const idle =
+        !cur ||
+        cur === SUITE_I18N.fr.ready ||
+        cur === SUITE_I18N.en.ready ||
+        cur === "Prêt" ||
+        cur === "Ready";
+      if (idle && typeof setStatus === "function") setStatus(t("ready"));
+    } catch (_) {}
     try {
       const api = typeof apiReady === "function" ? await apiReady() : (window.pywebview && window.pywebview.api);
       await refreshUpdateCheckButton(api);
