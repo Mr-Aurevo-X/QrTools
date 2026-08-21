@@ -15,6 +15,7 @@ import csv as csv_mod
 import io
 import json
 import os
+import urllib.parse
 import re
 import sys
 import zipfile
@@ -402,6 +403,32 @@ class Api(WindowChromeMixin):
 
     def set_window(self, window) -> None:
         WindowChromeMixin.set_window(self, window)
+
+
+    def open_support_url(self, kind: str = "") -> dict:
+        """Open Discord / PayPal / Revolut in the default browser (allowlisted)."""
+        urls = {
+            "discord": "https://discord.com/users/406891052516114442",
+            "paypal": "https://www.paypal.com/paypalme/aurevo1",
+            "revolut": "https://revolut.me/mr_aurevo_x",
+        }
+        allowed = frozenset(
+            {"discord.com", "www.paypal.com", "paypal.com", "revolut.me"}
+        )
+        key = (kind or "").strip().lower()
+        url = urls.get(key)
+        if not url:
+            return {"ok": False, "error": f"unknown support kind: {kind!r}"}
+        parsed = urllib.parse.urlparse(url)
+        host = (parsed.hostname or "").lower()
+        if parsed.scheme != "https" or host not in allowed:
+            return {"ok": False, "error": "support URL rejected"}
+        try:
+            os.startfile(url)  # type: ignore[attr-defined]
+            return {"ok": True, "kind": key, "url": url}
+        except Exception as exc:  # noqa: BLE001
+            return {"ok": False, "error": str(exc), "url": url}
+
 
     def get_suite_accent(self) -> dict:
         return {"ok": True, "accent": resolve_suite_accent()}
