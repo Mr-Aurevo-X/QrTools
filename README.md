@@ -77,7 +77,7 @@ python -m venv .venv
   - **mode exe (frozen)** → asset GitHub `QrTools.exe` (ou zip le contenant) → remplace + relance
   - **mode sources** → `git pull` (clone) ou zipball sources GitHub
 - Mode auto : `%LOCALAPPDATA%\Mr-Aurevo-X\QrTools-settings.json` → `"autoUpdate": true`
-- **Seul appel réseau optionnel** : cette vérif. / màj. La génération QR reste 100 % locale.
+- Seul appel réseau optionnel : vérif. de version GitHub Releases (désactivable dans **À propos**). Mises à jour non garanties. La génération QR reste 100 % locale.
 - « Mise à jour non garantie » = **juridique** (aucune promesse de futures releases).
 
 ## Build .exe

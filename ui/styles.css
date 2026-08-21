@@ -261,3 +261,14 @@ select option, select optgroup {
   border: 1px solid rgba(61, 214, 140, 0.4); background: rgba(61, 214, 140, 0.08);
 }
 .result-text { font-size: 0.85rem; color: var(--text); word-break: break-word; }
+
+.about-net {
+  margin: 0.55rem 0 0.35rem;
+  font-size: 0.72rem;
+  line-height: 1.35;
+  color: var(--muted);
+}
+#btnToggleUpdateCheck {
+  width: 100%;
+  margin: 0.35rem 0 0.55rem;
+}

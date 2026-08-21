@@ -467,6 +467,12 @@ class Api(WindowChromeMixin):
     def set_auto_update(self, enabled: bool = False) -> dict:
         return QrTools_updater.set_auto_update(bool(enabled))
 
+    def set_check_updates(self, enabled: bool = True) -> dict:
+        return QrTools_updater.set_check_updates(bool(enabled))
+
+    def get_update_prefs(self) -> dict:
+        return QrTools_updater.get_update_prefs()
+
     def build_payload(self, mode: str = "text", fields: dict | None = None) -> dict:
         return build_payload(mode, fields)
 
