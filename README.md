@@ -25,9 +25,9 @@ Double-click `QrTools.exe` to run (no install).
 Windows peut afficher « potentiellement dangereux » : les binaires ne sont pas signés Authenticode (pas de certificat éditeur payant). C’est un avertissement de réputation SmartScreen, pas un verdict antivirus.  
 Windows may flag the app as potentially unsafe: binaries are not Authenticode-signed (no paid publisher certificate). That is a SmartScreen reputation warning, not an antivirus verdict.
 
-Local SoT (public vitrine, **not** in L’Atelier Windows / PC Command):
+Local SoT (standalone Windows, **not** in PC Command hubs):
 
-`C:\Users\aurel\Documents\Dev Central Tree\Git Vitrine Public\QrTools`
+`C:\Users\aurel\Documents\Dev Central Tree\03_Standalones\QrTools`
 
 ## Legal / Légal
 
@@ -49,7 +49,7 @@ Le binaire PyInstaller (`QrTools.exe`) est windowed ; redistribution des sources
 **Double-clic `QrTools.exe`** — lancement principal, sans flash CMD.
 
 ```powershell
-cd "C:\Users\aurel\Documents\Dev Central Tree\Git Vitrine Public\QrTools"
+cd "C:\Users\aurel\Documents\Dev Central Tree\03_Standalones\QrTools"
 # After Build.cmd:
 .\QrTools.exe
 ```
@@ -83,7 +83,7 @@ python -m venv .venv
 ## Build .exe
 
 ```powershell
-cd "C:\Users\aurel\Documents\Dev Central Tree\Git Vitrine Public\QrTools"
+cd "C:\Users\aurel\Documents\Dev Central Tree\03_Standalones\QrTools"
 .\Build.cmd
 ```
 
