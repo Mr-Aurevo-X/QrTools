@@ -13,10 +13,10 @@ Exécution locale (Python + WebView2). Préférences partagées possibles : %LOC
 
 3. Exceptions réseau (pas de télémétrie éditeur)
 - Vérif. optionnelle GitHub Latest (toggle dans À propos) — lecture seule, pas de téléchargement.
-- Boutons Discord / PayPal / Revolut : sites de ces opérateurs.
+- Boutons Discord / dons crypto : sites de ces opérateurs.
 
 4. Liens de soutien
-Un clic Discord / PayPal / Revolut quitte l’app. Politiques de confidentialité de ces services.
+Un clic Discord / dons crypto quitte l’app. Politiques de confidentialité de ces services.
 
 5. Contact
 GitHub : https://github.com/Mr-Aurevo-X/QrTools

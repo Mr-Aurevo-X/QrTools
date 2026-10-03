@@ -13,10 +13,10 @@ Local execution (Python + WebView2). Shared prefs may live in %LOCALAPPDATA%\Mr-
 
 3. Network exceptions (not publisher telemetry)
 - Optional GitHub Latest check (About toggle) — read-only, no download.
-- Discord / PayPal / Revolut buttons: those operators’ sites.
+- Discord / dons crypto buttons: those operators’ sites.
 
 4. Support links
-Opening Discord / PayPal / Revolut leaves the app. Those services’ privacy policies apply.
+Opening Discord / dons crypto leaves the app. Those services’ privacy policies apply.
 
 5. Contact
 GitHub: https://github.com/Mr-Aurevo-X/QrTools
